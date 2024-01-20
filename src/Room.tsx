@@ -1,8 +1,9 @@
 import { Box, Button, IconButton, Stack, Typography } from "@mui/material"
-import { useReducer, useRef, useState } from "react"
+import { createContext, useReducer, useRef, useState } from "react"
 import JoinRoom from "./JoinRoom"
-import { Action, JoinRoomMessage, PlayerMessageType, RoomUpdateMessage, ServerMessage, ServerMessageType } from "./Messages"
+import { Action, JoinRoomMessage, PlayerMessageType, RoomActionMessage, RoomUpdateMessage, ServerMessage, ServerMessageType } from "./Messages"
 import { ContentCopy } from "@mui/icons-material"
+import Chat from "./Chat"
 
 
 const WebSocketServerAddress = "ws://localhost:9100/ws"
@@ -10,7 +11,7 @@ const WebSocketServerAddress = "ws://localhost:9100/ws"
 interface RoomState {
     code: string
     playerList: string[]
-    
+    chat: string[]
 }
 
 enum RoomActions {
@@ -23,10 +24,10 @@ interface RoomAction {
     payload?: any
 }
 
-
 const initialRoomState:RoomState = {
     code: "",
-    playerList: []
+    playerList: [],
+    chat: []
 }
 const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
     switch(action.action) {
@@ -34,16 +35,20 @@ const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
             return initialRoomState
         case RoomActions.UpdateRoomState:
             const p = action.payload as RoomUpdateMessage
-            console.log("Room update", p)
+            //console.log("Room update", p)
             return {
                 code: p.code,
                 playerList: p.players,
+                chat: p.chat
             }
         default:
             break
     }
     return state
 }
+export const RoomStateContext = createContext<RoomState>(initialRoomState)
+export const RoomStateDispatchContext = createContext<React.Dispatch<RoomAction>>(()=>{})
+
 
 const Room = () => {
     const [connected, setConnected] = useState<boolean>(false)
@@ -51,20 +56,22 @@ const Room = () => {
 
     const [roomState, roomStateDispatch] = useReducer(roomStateReducer, initialRoomState)
 
-    const onMessage = (event:MessageEvent) => {
+    const onServerMessage = (event:MessageEvent) => {
         const msgs = JSON.parse(event.data) as ServerMessage[]
         for (const msgkey in msgs) {
             const msg = {
                 type: msgs[msgkey].type,
                 content: JSON.parse(atob(msgs[msgkey].content))
             }
+            //console.log(msg)
             switch(msg.type) {
                 case ServerMessageType.ServerError:
                     console.error(msg)
                     break
                 case ServerMessageType.RoomUpdate:
                     // if not already in room
-                    console.log("Got room update from server")
+                    // console.log("Got room update from server")
+                    
                     roomStateDispatch({
                         action: RoomActions.UpdateRoomState,
                         payload: msg.content as RoomUpdateMessage
@@ -110,7 +117,7 @@ const Room = () => {
             disconnect()
         })
 
-        socket.onmessage = onMessage
+        socket.onmessage = onServerMessage
 
         ws.current = socket
     }
@@ -137,52 +144,74 @@ const Room = () => {
         }
     }
 
-    return <Box 
-        display="flex"
-        flexDirection='column'
-        justifyContent='center'
-    >
-        {!connected ? <>
-            <Box>
-                <Button onClick={connect} variant="outlined">Connect</Button>
-            </Box>
-        </> : <>
-            <Stack
-                direction={'column'}
-                maxWidth={'xs'}
-                spacing={2}
+    const onChatSend = (msg:string) => {
+        if (ws.current) {
+            //console.log(msg)
+            const chat:RoomActionMessage = {
+                chat: msg
+            }
+
+            ws.current.send(Action({
+                type: PlayerMessageType.RoomAction,
+                content: JSON.stringify(chat)
+            }))
+        }
+    }
+
+    return <RoomStateContext.Provider value={roomState}>
+        <RoomStateDispatchContext.Provider value={roomStateDispatch}>
+            <Box 
+                display="flex"
+                flexDirection='column'
+                justifyContent='center'
             >
-                {roomState.code === "" &&
-                    <>
-                        <JoinRoom handleJoinRoom={handleJoinRoom}/>
-                        <Button onClick={createRoom} variant="outlined">Create Room</Button>
-                    </>
-                }
-                <Button onClick={disconnect} variant="outlined">Disconnect</Button>
-            </Stack>
-            {roomState.code && <Box>
-                <Stack
-                    direction='row'
-                    sx={{
-                        alignItems: "center"
-                    }}
-                >
-                    <Typography>
-                        Room code: {roomState.code}
-                    </Typography>
-                    <IconButton onClick={() => {navigator.clipboard.writeText(roomState.code)}}>
-                        <ContentCopy fontSize="inherit"/>
-                    </IconButton>
-                </Stack>
-                <Box>
-                    <Typography>Players:</Typography>
-                    {roomState.playerList && roomState.playerList.map((v, i) => {
-                        return <Typography key={i}>{v}</Typography>
-                    })}
-                </Box>
-            </Box>}
-        </>}
-    </Box>
+                {!connected ? <>
+                    <Box>
+                        <Button onClick={connect} variant="outlined">Connect</Button>
+                    </Box>
+                </> : <>
+                    <Stack
+                        direction={'column'}
+                        maxWidth={'xs'}
+                        spacing={2}
+                    >
+                        {roomState.code === "" &&
+                            <>
+                                <JoinRoom handleJoinRoom={handleJoinRoom}/>
+                                <Button onClick={createRoom} variant="outlined">Create Room</Button>
+                            </>
+                        }
+                        <Button onClick={disconnect} variant="outlined">Disconnect</Button>
+                    </Stack>
+                    {roomState.code && <Box>
+                        <Stack
+                            direction='row'
+                            sx={{
+                                alignItems: "center"
+                            }}
+                        >
+                            <Typography>
+                                Room code: {roomState.code}
+                            </Typography>
+                            <IconButton onClick={() => {navigator.clipboard.writeText(roomState.code)}}>
+                                <ContentCopy fontSize="inherit"/>
+                            </IconButton>
+                        </Stack>
+                        <Box>
+                            <Typography>Players:</Typography>
+                            {roomState.playerList && roomState.playerList.map((v, i) => {
+                                return <Typography key={i}>{v}</Typography>
+                            })}
+                        </Box>
+
+                        <Box>
+                            <Chat onChatSend={onChatSend}/>
+                        </Box>
+                    </Box>}
+                </>}
+            </Box>
+        </RoomStateDispatchContext.Provider>
+    </RoomStateContext.Provider>
 }
 
 export default Room

@@ -28,6 +28,10 @@ export const Action = (c:PlayerMessage):string => {
     })
 }
 
+export interface RoomActionMessage {
+    chat?: string
+}
+
 export interface JoinRoomMessage {
     code: string
 }
@@ -35,4 +39,5 @@ export interface JoinRoomMessage {
 export interface RoomUpdateMessage {
     code: string
     players: string[]
+    chat: string[]
 }
