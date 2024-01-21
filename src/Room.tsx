@@ -90,7 +90,7 @@ const Room = () => {
         }
         setConnected(false)
         roomStateDispatch({action:RoomActions.Reset, payload: ""})
-        console.log("No websocket detected")
+        console.log("Disconnected")
     }
 
     const connect = () => {
@@ -123,7 +123,7 @@ const Room = () => {
     }
 
     const handleJoinRoom = (code:string) => {
-        console.log(code)
+        //console.log(code)
         if (ws.current) {
             const jrm: JoinRoomMessage = {
                 code: code

@@ -33,12 +33,8 @@ const Chat = ({
                 }}
                 onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === "Enter") {
-                        setMsg(v => {
-                            if (v !== "") {
-                                onChatSend(v)
-                            }
-                            return ""
-                        })
+                        onChatSend(msg)
+                        setMsg("")
                     }
                 }}
             />
