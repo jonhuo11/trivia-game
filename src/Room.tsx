@@ -1,9 +1,10 @@
 import { Box, Button, IconButton, Stack, Typography } from "@mui/material"
 import { createContext, useReducer, useRef, useState } from "react"
 import JoinRoom from "./JoinRoom"
-import { Action, JoinRoomMessage, PlayerMessageType, RoomActionMessage, RoomUpdateMessage, ServerMessage, ServerMessageType } from "./Messages"
+import { Action, JoinRoomMessage, PlayerMessageType, RoomActionMessage, RoomUpdateMessage, ServerMessage, ServerMessageType, TriviaGameUpdate } from "./Messages"
 import { ContentCopy } from "@mui/icons-material"
 import Chat from "./Chat"
+import TriviaGame from "./TriviaGame"
 
 
 const WebSocketServerAddress = "ws://localhost:9100/ws"
@@ -12,6 +13,7 @@ interface RoomState {
     code: string
     playerList: string[]
     chat: string[]
+    isOwner: boolean
 }
 
 enum RoomActions {
@@ -27,7 +29,8 @@ interface RoomAction {
 const initialRoomState:RoomState = {
     code: "",
     playerList: [],
-    chat: []
+    chat: [],
+    isOwner: false,
 }
 const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
     switch(action.action) {
@@ -39,7 +42,8 @@ const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
             return {
                 code: p.code,
                 playerList: p.players,
-                chat: p.chat
+                chat: p.chat,
+                isOwner: state.isOwner // TODO
             }
         default:
             break
@@ -55,6 +59,12 @@ const Room = () => {
     const ws = useRef<WebSocket | null>(null)
 
     const [roomState, roomStateDispatch] = useReducer(roomStateReducer, initialRoomState)
+
+    // the game update packet received from the server
+    const [nextGameUpdate, setNextGameUpdate] = useState<TriviaGameUpdate>({
+        blueTeam: [],
+        redTeam: []
+    })
 
     const onServerMessage = (event:MessageEvent) => {
         const msgs = JSON.parse(event.data) as ServerMessage[]
@@ -76,6 +86,9 @@ const Room = () => {
                         action: RoomActions.UpdateRoomState,
                         payload: msg.content as RoomUpdateMessage
                     })
+                    break
+                case ServerMessageType.TriviaGameUpdate:
+                    setNextGameUpdate(msg.content as TriviaGameUpdate)
                     break
                 default:
                     console.log("Other message type")
@@ -183,7 +196,10 @@ const Room = () => {
                         }
                         <Button onClick={disconnect} variant="outlined">Disconnect</Button>
                     </Stack>
-                    {roomState.code && <Box>
+                    {roomState.code && <Box
+                        display='flex'
+                        flexDirection='column'
+                    >
                         <Stack
                             direction='row'
                             sx={{
@@ -204,7 +220,13 @@ const Room = () => {
                             })}
                         </Box>
 
-                        <Box>
+                        <TriviaGame nextGameUpdate={nextGameUpdate}></TriviaGame>
+
+                        <Box sx={{
+                            position: "fixed",
+                            bottom: "0",
+                            right: "0"
+                        }}>
                             <Chat onChatSend={onChatSend}/>
                         </Box>
                     </Box>}

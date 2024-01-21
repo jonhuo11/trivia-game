@@ -9,6 +9,7 @@ export enum PlayerMessageType {
 export enum ServerMessageType {
     ServerError = 0,
     RoomUpdate = 1,
+    TriviaGameUpdate = 2
 }
 
 export interface PlayerMessage {
@@ -28,6 +29,7 @@ export const Action = (c:PlayerMessage):string => {
     })
 }
 
+// outgoing
 export interface RoomActionMessage {
     chat?: string
 }
@@ -40,4 +42,15 @@ export interface RoomUpdateMessage {
     code: string
     players: string[]
     chat: string[]
+}
+
+// incoming
+export interface TriviaGameUpdate {
+    blueTeam: string[]
+    redTeam: string[]
+}
+
+// outgoing
+export interface TriviaGameActionMessage {
+    
 }
