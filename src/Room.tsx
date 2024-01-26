@@ -171,6 +171,13 @@ const Room = () => {
         }
     }
 
+    // pass down websocket send to child for game messages
+    const wsSendGameMessage = (stringifiedContent:string) => {
+        if (ws.current) {
+            // wrap type as game message, content is already stringified
+        }
+    }
+
     return <RoomStateContext.Provider value={roomState}>
         <RoomStateDispatchContext.Provider value={roomStateDispatch}>
             <Box 
@@ -220,7 +227,9 @@ const Room = () => {
                             })}
                         </Box>
 
-                        <TriviaGame nextGameUpdate={nextGameUpdate}></TriviaGame>
+                        <TriviaGame
+                            wsSendGameMessage={wsSendGameMessage}
+                        ></TriviaGame>
 
                         <Box sx={{
                             position: "fixed",

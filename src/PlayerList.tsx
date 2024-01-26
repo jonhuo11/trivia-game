@@ -23,10 +23,10 @@ const PlayerList = ({
         alignItems='center'
     >
         <Grid item xs={6}>
-            <TeamListCard teamTitle="Blue Team" ></TeamListCard>
+            <TeamListCard teamTitle="Blue Team" team={blue} handleJoin={handleClickBlueTeam}/>
         </Grid>
         <Grid item xs={6}>
-            <TeamListCard teamTitle="Red Team"></TeamListCard>
+            <TeamListCard teamTitle="Red Team" team={red} handleJoin={handleClickRedTeam}/>
         </Grid>
     </Grid>
 }

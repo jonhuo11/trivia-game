@@ -2,8 +2,8 @@ export enum PlayerMessageType {
     Connect = 0,
     JoinRoom = 1,
     CreateRoom = 2,
-    RoomAction = 3
-    
+    RoomAction = 3,
+    GameAction = 4
 }
 
 export enum ServerMessageType {
@@ -50,7 +50,7 @@ export interface TriviaGameUpdate {
     redTeam: string[]
 }
 
-// outgoing
+// outgoing, updates related to the trivia game itself
 export interface TriviaGameActionMessage {
     
 }

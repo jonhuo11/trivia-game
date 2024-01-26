@@ -1,7 +1,7 @@
 import { useContext, useState } from "react"
 import { RoomStateContext } from "./Room"
 import PlayerList from "./PlayerList"
-import { Box } from "@mui/material"
+import { Box, Typography } from "@mui/material"
 import { TriviaGameUpdate } from "./Messages"
 
 interface TriviaGameState {
@@ -11,19 +11,27 @@ const initialTriviaGameState:TriviaGameState = {
 }
 
 interface TriviaGameProps {
-    nextGameUpdate: TriviaGameUpdate
-    wsSend: (message:string) => void
+    wsSendGameMessage: (stringifiedContent:string) => void
 }
 
-const TriviaGame = ({nextGameUpdate, wsSend}: TriviaGameProps) => {
+const TriviaGame = ({wsSendGameMessage}: TriviaGameProps) => {
     const roomState = useContext(RoomStateContext)
     const [gameState, setGameState] = useState(initialTriviaGameState)
 
-    const blueTeam = nextGameUpdate.blueTeam
-    const redTeam = nextGameUpdate.redTeam
+    const blueTeam:string[] = []
+    const redTeam:string[] = []
 
     return <Box>
-        <PlayerList blue={blueTeam} red={redTeam}></PlayerList>
+        <PlayerList
+            blue={blueTeam}
+            red={redTeam}
+            handleClickBlueTeam={() => {
+
+            }}
+            handleClickRedTeam={() => {
+
+            }}
+        ></PlayerList>
     </Box>
 }
 

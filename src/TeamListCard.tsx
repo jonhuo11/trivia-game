@@ -1,17 +1,22 @@
 import { Box, Button, Card, CardActions, CardContent, Typography } from "@mui/material"
 
 interface TeamListCardProps {
-    teamTitle: string
+    teamTitle: string,
+    team: string[],
+    handleJoin?: ()=>void
 }
 
-const TeamListCard = ({teamTitle}: TeamListCardProps) => {
+const TeamListCard = ({teamTitle, team, handleJoin}: TeamListCardProps) => {
     return <Card>
         <CardContent>
             <Typography>{teamTitle}</Typography>
+            <Box>{team.map((v, i) => {
+                return <Typography key={i}>{v}</Typography>
+            })}</Box>
         </CardContent>
         <CardActions>
             <Box justifyContent='center'>
-                <Button>
+                <Button onClick={handleJoin}>
                     Join Team
                 </Button>
             </Box>
