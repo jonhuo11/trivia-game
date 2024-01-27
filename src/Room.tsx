@@ -4,7 +4,7 @@ import JoinRoom from "./JoinRoom"
 import { Action, JoinRoomMessage, PlayerMessageType, RoomActionMessage, RoomUpdateMessage, ServerMessage, ServerMessageType, TriviaGameUpdate } from "./Messages"
 import { ContentCopy } from "@mui/icons-material"
 import Chat from "./Chat"
-import TriviaGame from "./TriviaGame"
+import TriviaGame, { TriviaGameHandle } from "./TriviaGame"
 
 
 const WebSocketServerAddress = "ws://localhost:9100/ws"
@@ -60,11 +60,8 @@ const Room = () => {
 
     const [roomState, roomStateDispatch] = useReducer(roomStateReducer, initialRoomState)
 
-    // the game update packet received from the server
-    const [nextGameUpdate, setNextGameUpdate] = useState<TriviaGameUpdate>({
-        blueTeam: [],
-        redTeam: []
-    })
+    const gameRef = useRef<TriviaGameHandle>(null)
+
 
     const onServerMessage = (event:MessageEvent) => {
         const msgs = JSON.parse(event.data) as ServerMessage[]
@@ -88,7 +85,13 @@ const Room = () => {
                     })
                     break
                 case ServerMessageType.TriviaGameUpdate:
-                    setNextGameUpdate(msg.content as TriviaGameUpdate)
+                    //console.log("RoomManager got game update type")
+                    //console.log(gameRef.current)
+                    // trigger the callback from TriviaGame from here
+                    if (gameRef.current) {
+                        gameRef.current.ping()
+                        gameRef.current.onServerTriviaGameUpdate(msg.content as TriviaGameUpdate)
+                    }
                     break
                 default:
                     console.log("Other message type")
@@ -185,61 +188,63 @@ const Room = () => {
                 flexDirection='column'
                 justifyContent='center'
             >
-                {!connected ? <>
-                    <Box>
-                        <Button onClick={connect} variant="outlined">Connect</Button>
-                    </Box>
-                </> : <>
+                {!connected && <Button onClick={connect} variant="outlined">Connect</Button> }
+                <Stack
+                    direction={'column'}
+                    maxWidth={'xs'}
+                    spacing={2}
+                    sx={{
+                        visibility: connected ? "visible" : "hidden"
+                    }}
+                >
+                    {roomState.code === "" &&
+                        <>
+                            <JoinRoom handleJoinRoom={handleJoinRoom}/>
+                            <Button onClick={createRoom} variant="outlined">Create Room</Button>
+                        </>
+                    }
+                    <Button onClick={disconnect} variant="outlined">Disconnect</Button>
+                </Stack>
+                <Box
+                    display='flex'
+                    flexDirection='column'
+                    sx={{
+                        visibility: connected && roomState.code !== "" ? "visible" : "hidden"
+                    }}
+                >
                     <Stack
-                        direction={'column'}
-                        maxWidth={'xs'}
-                        spacing={2}
+                        direction='row'
+                        sx={{
+                            alignItems: "center"
+                        }}
                     >
-                        {roomState.code === "" &&
-                            <>
-                                <JoinRoom handleJoinRoom={handleJoinRoom}/>
-                                <Button onClick={createRoom} variant="outlined">Create Room</Button>
-                            </>
-                        }
-                        <Button onClick={disconnect} variant="outlined">Disconnect</Button>
+                        <Typography>
+                            Room code: {roomState.code}
+                        </Typography>
+                        <IconButton onClick={() => {navigator.clipboard.writeText(roomState.code)}}>
+                            <ContentCopy fontSize="inherit"/>
+                        </IconButton>
                     </Stack>
-                    {roomState.code && <Box
-                        display='flex'
-                        flexDirection='column'
-                    >
-                        <Stack
-                            direction='row'
-                            sx={{
-                                alignItems: "center"
-                            }}
-                        >
-                            <Typography>
-                                Room code: {roomState.code}
-                            </Typography>
-                            <IconButton onClick={() => {navigator.clipboard.writeText(roomState.code)}}>
-                                <ContentCopy fontSize="inherit"/>
-                            </IconButton>
-                        </Stack>
-                        <Box>
-                            <Typography>Players:</Typography>
-                            {roomState.playerList && roomState.playerList.map((v, i) => {
-                                return <Typography key={i}>{v}</Typography>
-                            })}
-                        </Box>
+                    <Box>
+                        <Typography>Players:</Typography>
+                        {roomState.playerList && roomState.playerList.map((v, i) => {
+                            return <Typography key={i}>{v}</Typography>
+                        })}
+                    </Box>
 
-                        <TriviaGame
-                            wsSendGameMessage={wsSendGameMessage}
-                        ></TriviaGame>
+                    <TriviaGame
+                        wsSendGameMessage={wsSendGameMessage}
+                        ref={gameRef}
+                    />
 
-                        <Box sx={{
-                            position: "fixed",
-                            bottom: "0",
-                            right: "0"
-                        }}>
-                            <Chat onChatSend={onChatSend}/>
-                        </Box>
-                    </Box>}
-                </>}
+                    <Box sx={{
+                        position: "fixed",
+                        bottom: "0",
+                        right: "0"
+                    }}>
+                        <Chat onChatSend={onChatSend}/>
+                    </Box>
+                </Box>
             </Box>
         </RoomStateDispatchContext.Provider>
     </RoomStateContext.Provider>

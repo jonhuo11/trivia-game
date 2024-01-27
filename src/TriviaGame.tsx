@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { forwardRef, useContext, useImperativeHandle, useRef, useState } from "react"
 import { RoomStateContext } from "./Room"
 import PlayerList from "./PlayerList"
 import { Box, Typography } from "@mui/material"
@@ -14,12 +14,36 @@ interface TriviaGameProps {
     wsSendGameMessage: (stringifiedContent:string) => void
 }
 
-const TriviaGame = ({wsSendGameMessage}: TriviaGameProps) => {
+export interface TriviaGameHandle {
+    onServerTriviaGameUpdate: (update: TriviaGameUpdate) => void
+    ping: () => void
+}
+
+const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
+    {wsSendGameMessage}: TriviaGameProps,
+    ref
+) => {
     const roomState = useContext(RoomStateContext)
     const [gameState, setGameState] = useState(initialTriviaGameState)
 
+    const r = useRef()
+
     const blueTeam:string[] = []
     const redTeam:string[] = []
+
+    const onServerTriviaGameUpdate = (update: TriviaGameUpdate):void => {
+
+    }
+
+    // passes the callback for when trivia game updates are received back to the room manager
+    useImperativeHandle(ref, () => {
+        return {
+            onServerTriviaGameUpdate,
+            ping() {
+                console.log("Pinged TriviaGame")
+            }
+        }
+    }, [r])
 
     return <Box>
         <PlayerList
@@ -33,6 +57,6 @@ const TriviaGame = ({wsSendGameMessage}: TriviaGameProps) => {
             }}
         ></PlayerList>
     </Box>
-}
+})
 
 export default TriviaGame

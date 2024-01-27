@@ -44,7 +44,7 @@ export interface RoomUpdateMessage {
     chat: string[]
 }
 
-// incoming
+// incoming update from server
 export interface TriviaGameUpdate {
     blueTeam: string[]
     redTeam: string[]
