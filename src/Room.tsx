@@ -4,7 +4,7 @@ import JoinRoom from "./JoinRoom"
 import { Action, JoinRoomMessage, PlayerMessageType, RoomActionMessage, RoomUpdateMessage, ServerMessage, ServerMessageType, TriviaGameUpdate } from "./Messages"
 import { ContentCopy } from "@mui/icons-material"
 import Chat from "./Chat"
-import TriviaGame, { TriviaGameHandle } from "./TriviaGame"
+import TriviaGame, { TriviaGameHandle } from "./Trivia/TriviaGame"
 
 
 const WebSocketServerAddress = "ws://localhost:9100/ws"

@@ -1,19 +1,19 @@
 import { Card, CardContent, Grid, Typography } from "@mui/material"
 import TeamListCard from "./TeamListCard"
 
-interface PlayerListProps {
+interface TeamsListProps {
     blue: string[]
     red: string[]
     handleClickBlueTeam?: ()=>void
     handleClickRedTeam?: ()=>void
 }
 
-const PlayerList = ({
+const TeamsList = ({
     blue,
     red,
     handleClickBlueTeam,
     handleClickRedTeam
-}: PlayerListProps) => {
+}: TeamsListProps) => {
     return <Grid
         container
         sx={{flexGrow:1}}
@@ -31,4 +31,4 @@ const PlayerList = ({
     </Grid>
 }
 
-export default PlayerList
+export default TeamsList

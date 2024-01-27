@@ -22,12 +22,6 @@ export interface ServerMessage {
     content: string
 }
 
-export const Action = (c:PlayerMessage):string => {
-    return JSON.stringify({
-        type: c.type,
-        content: btoa(c.content)
-    })
-}
 
 // outgoing
 export interface RoomActionMessage {
@@ -53,4 +47,12 @@ export interface TriviaGameUpdate {
 // outgoing, updates related to the trivia game itself
 export interface TriviaGameActionMessage {
     join: number // 0 is blue 1 is red
+}
+
+
+export const Action = (c:PlayerMessage):string => {
+    return JSON.stringify({
+        type: c.type,
+        content: btoa(c.content)
+    })
 }

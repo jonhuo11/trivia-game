@@ -1,8 +1,8 @@
 import { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from "react"
-import { RoomStateContext } from "./Room"
-import PlayerList from "./PlayerList"
+import { RoomStateContext } from "../Room"
+import TeamsList from "./TeamsList"
 import { Box, Typography } from "@mui/material"
-import { TriviaGameActionMessage, TriviaGameUpdate } from "./Messages"
+import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages"
 
 enum TriviaState {
     LOBBY = 0,
@@ -86,7 +86,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
     }
 
     return <Box>
-        <PlayerList
+        <TeamsList
             blue={gameState.blue}
             red={gameState.red}
             handleClickBlueTeam={() => {
@@ -95,7 +95,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
             handleClickRedTeam={() => {
                 joinTeam("red")
             }}
-        ></PlayerList>
+        ></TeamsList>
     </Box>
 })
 
