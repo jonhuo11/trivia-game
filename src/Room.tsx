@@ -10,6 +10,7 @@ import TriviaGame, { TriviaGameHandle } from "./TriviaGame"
 const WebSocketServerAddress = "ws://localhost:9100/ws"
 
 interface RoomState {
+    connected: boolean
     code: string
     playerList: string[]
     chat: string[]
@@ -27,6 +28,7 @@ interface RoomAction {
 }
 
 const initialRoomState:RoomState = {
+    connected: false,
     code: "",
     playerList: [],
     chat: [],
@@ -40,6 +42,7 @@ const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
             const p = action.payload as RoomUpdateMessage
             //console.log("Room update", p)
             return {
+                ...state,
                 code: p.code,
                 playerList: p.players,
                 chat: p.chat,
@@ -89,7 +92,7 @@ const Room = () => {
                     //console.log(gameRef.current)
                     // trigger the callback from TriviaGame from here
                     if (gameRef.current) {
-                        gameRef.current.ping()
+                        //gameRef.current.ping()
                         gameRef.current.onServerTriviaGameUpdate(msg.content as TriviaGameUpdate)
                     }
                     break
@@ -178,6 +181,10 @@ const Room = () => {
     const wsSendGameMessage = (stringifiedContent:string) => {
         if (ws.current) {
             // wrap type as game message, content is already stringified
+            ws.current.send(Action({
+                type: PlayerMessageType.GameAction,
+                content: stringifiedContent
+            }))
         }
     }
 

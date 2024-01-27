@@ -1,13 +1,29 @@
-import { forwardRef, useContext, useImperativeHandle, useRef, useState } from "react"
+import { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from "react"
 import { RoomStateContext } from "./Room"
 import PlayerList from "./PlayerList"
 import { Box, Typography } from "@mui/material"
-import { TriviaGameUpdate } from "./Messages"
+import { TriviaGameActionMessage, TriviaGameUpdate } from "./Messages"
+
+enum TriviaState {
+    LOBBY = 0,
+    GAME,
+}
 
 interface TriviaGameState {
+    // lobby, in game, win, ...
+    state: TriviaState
+
+    // blue team
+    blue: string[],
+
+    // red team
+    red: string[]
 }
 
 const initialTriviaGameState:TriviaGameState = {
+    state: TriviaState.LOBBY,
+    blue: [],
+    red: []
 }
 
 interface TriviaGameProps {
@@ -23,16 +39,33 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
     {wsSendGameMessage}: TriviaGameProps,
     ref
 ) => {
-    const roomState = useContext(RoomStateContext)
+    const roomState = useContext(RoomStateContext) // chat, playerlist, etc
     const [gameState, setGameState] = useState(initialTriviaGameState)
 
-    const r = useRef()
-
-    const blueTeam:string[] = []
-    const redTeam:string[] = []
+    // TODO reset gameState when disconnected or first connecting
 
     const onServerTriviaGameUpdate = (update: TriviaGameUpdate):void => {
+        //console.log("Got trivia game update", update)
+        switch(gameState.state) {
+            case TriviaState.LOBBY: {
+                /*
+                While in lobby, players can
+                - join blue/red team
+                */
 
+                // joining teams
+                setGameState(c => ({
+                    ...c,
+                    blue: update.blueTeam,
+                    red: update.redTeam
+                }))
+                break
+            }
+            case TriviaState.GAME: {
+                // TODO game logic
+                break
+            }
+        }
     }
 
     // passes the callback for when trivia game updates are received back to the room manager
@@ -43,17 +76,24 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
                 console.log("Pinged TriviaGame")
             }
         }
-    }, [r])
+    }, [])
+
+    const joinTeam = (color: "blue" | "red") => {
+        const tgam:TriviaGameActionMessage = {
+            join: color === "blue" ? 0 : 1
+        }
+        wsSendGameMessage(JSON.stringify(tgam))
+    }
 
     return <Box>
         <PlayerList
-            blue={blueTeam}
-            red={redTeam}
+            blue={gameState.blue}
+            red={gameState.red}
             handleClickBlueTeam={() => {
-
+                joinTeam("blue")
             }}
             handleClickRedTeam={() => {
-
+                joinTeam("red")
             }}
         ></PlayerList>
     </Box>

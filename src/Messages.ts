@@ -52,5 +52,5 @@ export interface TriviaGameUpdate {
 
 // outgoing, updates related to the trivia game itself
 export interface TriviaGameActionMessage {
-    
+    join: number // 0 is blue 1 is red
 }
