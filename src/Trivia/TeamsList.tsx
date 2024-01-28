@@ -16,11 +16,14 @@ const TeamsList = ({
 }: TeamsListProps) => {
     return <Grid
         container
-        sx={{flexGrow:1}}
+        sx={{
+            flexGrow:1,
+            //border: "1px solid black"
+        }}
         spacing={2}
         direction='row'
         justifyContent='center'
-        alignItems='center'
+        alignItems='top'
     >
         <Grid item xs={6}>
             <TeamListCard teamTitle="Blue Team" team={blue} handleJoin={handleClickBlueTeam}/>

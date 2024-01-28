@@ -1,10 +1,10 @@
 import { Box, Button, IconButton, Stack, Typography } from "@mui/material"
 import { createContext, useReducer, useRef, useState } from "react"
 import JoinRoom from "./JoinRoom"
-import { Action, JoinRoomMessage, PlayerMessageType, RoomActionMessage, RoomUpdateMessage, ServerMessage, ServerMessageType, TriviaGameUpdate } from "./Messages"
+import { Action, JoinRoomMessage, PlayerMessageType, RoomActionMessage, RoomUpdateMessage, ServerMessage, ServerMessageType, TriviaGameUpdate } from "../Messages"
 import { ContentCopy } from "@mui/icons-material"
 import Chat from "./Chat"
-import TriviaGame, { TriviaGameHandle } from "./Trivia/TriviaGame"
+import TriviaGame, { TriviaGameHandle } from "../Trivia/TriviaGame"
 
 
 const WebSocketServerAddress = "ws://localhost:9100/ws"
@@ -46,7 +46,7 @@ const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
                 code: p.code,
                 playerList: p.players,
                 chat: p.chat,
-                isOwner: state.isOwner // TODO
+                isOwner: false,
             }
         default:
             break
@@ -79,8 +79,6 @@ const Room = () => {
                     console.error(msg)
                     break
                 case ServerMessageType.RoomUpdate:
-                    // if not already in room
-                    // console.log("Got room update from server")
                     
                     roomStateDispatch({
                         action: RoomActions.UpdateRoomState,

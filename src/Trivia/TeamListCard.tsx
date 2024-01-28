@@ -7,7 +7,12 @@ interface TeamListCardProps {
 }
 
 const TeamListCard = ({teamTitle, team, handleJoin}: TeamListCardProps) => {
-    return <Card>
+    return <Card sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        height: "100%"
+    }}>
         <CardContent>
             <Typography>{teamTitle}</Typography>
             <Box>{team.map((v, i) => {

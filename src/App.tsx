@@ -1,6 +1,6 @@
 import { Container, CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import './App.css'
-import Room from './Room'
+import Room from './Room/Room'
 
 const defaultTheme = createTheme()
 

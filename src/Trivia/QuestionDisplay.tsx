@@ -15,7 +15,7 @@ const QuestionDisplay = ({
 
     return <Box>
         <Box>
-            <Typography>q</Typography>
+            <Typography>{q}</Typography>
         </Box>
         <Box>
             <List

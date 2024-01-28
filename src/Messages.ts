@@ -32,6 +32,7 @@ export interface JoinRoomMessage {
     code: string
 }
 
+// incoming
 export interface RoomUpdateMessage {
     code: string
     players: string[]

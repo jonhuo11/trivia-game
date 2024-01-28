@@ -1,7 +1,7 @@
 import { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from "react"
-import { RoomStateContext } from "../Room"
+import { RoomStateContext } from "../Room/Room"
 import TeamsList from "./TeamsList"
-import { Box, Typography } from "@mui/material"
+import { Box, Button, Typography } from "@mui/material"
 import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages"
 
 enum TriviaState {
@@ -85,17 +85,33 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
         wsSendGameMessage(JSON.stringify(tgam))
     }
 
+    const startGame = () => {
+
+    }
+
     return <Box>
-        <TeamsList
-            blue={gameState.blue}
-            red={gameState.red}
-            handleClickBlueTeam={() => {
-                joinTeam("blue")
-            }}
-            handleClickRedTeam={() => {
-                joinTeam("red")
-            }}
-        ></TeamsList>
+        {gameState.state === TriviaState.LOBBY && <Box>
+            <TeamsList
+                blue={gameState.blue}
+                red={gameState.red}
+                handleClickBlueTeam={() => {
+                    joinTeam("blue")
+                }}
+                handleClickRedTeam={() => {
+                    joinTeam("red")
+                }}
+            />
+            <Button
+                variant="outlined"
+                onClick={startGame}
+            >
+                Start Game
+            </Button>
+        </Box>}
+
+        <Box>
+            
+        </Box>
     </Box>
 })
 
