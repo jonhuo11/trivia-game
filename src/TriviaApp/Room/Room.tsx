@@ -6,6 +6,8 @@ import { ContentCopy } from "@mui/icons-material"
 import Chat from "./Chat"
 import TriviaGame, { TriviaGameHandle } from "../Trivia/TriviaGame"
 
+const DebugMode:boolean = true
+
 
 const WebSocketServerAddress = "ws://localhost:9100/ws"
 
@@ -199,7 +201,7 @@ const Room = () => {
                     maxWidth={'xs'}
                     spacing={2}
                     sx={{
-                        visibility: connected ? "visible" : "hidden"
+                        display: connected ? "flex" : "none"
                     }}
                 >
                     {roomState.code === "" &&
@@ -214,7 +216,7 @@ const Room = () => {
                     display='flex'
                     flexDirection='column'
                     sx={{
-                        visibility: connected && roomState.code !== "" ? "visible" : "hidden"
+                        visibility: (connected && roomState.code !== "") || DebugMode ? "visible" : "hidden"
                     }}
                 >
                     <Stack

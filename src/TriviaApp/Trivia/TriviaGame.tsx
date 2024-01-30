@@ -3,6 +3,7 @@ import { RoomStateContext } from "../Room/Room"
 import TeamsList from "./TeamsList"
 import { Box, Button, Typography } from "@mui/material"
 import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages"
+import QuestionDisplay from "./QuestionDisplay"
 
 enum TriviaState {
     LOBBY = 0,
@@ -110,7 +111,10 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
         </Box>}
 
         <Box>
-            
+            <QuestionDisplay
+                q="Which voice actor does the voice for Quagmire?"
+                a={["Seth Macfarlane", "Mila Kunis"]}
+            />
         </Box>
     </Box>
 })
