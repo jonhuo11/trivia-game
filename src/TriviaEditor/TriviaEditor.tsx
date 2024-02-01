@@ -199,7 +199,7 @@ const TriviaEditor = () => {
                         variant="outlined"
                         startIcon={<Add/>}
                         onClick={addQuestion}
-                    >{!triviaData ? "Create New Question Set" : "Add Question"}</Button>
+                    >{!triviaData ? "Create .trivia File" : "Add Question"}</Button>
                 </Box>
             </Box>
         </Box>
