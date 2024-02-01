@@ -18,11 +18,10 @@
             "a": [
                 {
                     "a": "George Washington",
-                    "correct": "true"
+                    "correct": true
                 },
                 {
-                    "a": "George Bush",
-                    "correct": "false"
+                    "a": "George Bush"
                 }
             ]
         }

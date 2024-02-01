@@ -1,0 +1,29 @@
+{
+    "questions": [
+        {
+            "l": "Bad property",
+            "q": "What is the capital city of Germany?",
+            "a": [
+                {
+                    "a": "Berlin",
+                    "correct": true
+                },
+                {
+                    "a": "London",
+                    "correct": false
+                }
+            ]
+        },
+        {
+            "a": [
+                {
+                    "correct": true
+                },
+                {
+                    "a": "George Bush",
+                    "correct": false
+                }
+            ]
+        }
+    ]
+}
