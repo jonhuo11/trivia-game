@@ -11,11 +11,26 @@ import { Box, Button, Container, CssBaseline, TextField, Typography } from "@mui
 import { useRef, useState } from "react"
 import { TriviaFileContentType } from "./TriviaFileContent"
 import TriviaFileContentParser from "./TriviaFileContent"
+import TriviaQuestionAnswerEditor from "./TriviaQuestionAnswerEditor"
+import { Add, UploadFile } from "@mui/icons-material"
 
 export interface LoadedTriviaFile {
     name: string,
     sizeBytes: number,
     parsedData: TriviaFileContentType
+}
+
+const NewDefaultLoadedTriviaFile:LoadedTriviaFile = {
+    name: "new_trivia_set.trivia",
+    sizeBytes: 0,
+    parsedData: {
+        questions: [
+            {
+                q: "New Question",
+                a: []
+            }
+        ]
+    }
 }
 
 const TriviaEditor = () => {
@@ -47,6 +62,27 @@ const TriviaEditor = () => {
         }
     }
 
+    const addQuestion = () => {
+        // if empty loaded trivia file, create new
+        // if not empty, edit existing
+        if (!triviaData) {
+            setTriviaData(NewDefaultLoadedTriviaFile)
+        } else {
+            setTriviaData(p => {if (p) { return {
+                ...p,
+                parsedData: {
+                    questions: [
+                        ...p.parsedData.questions,
+                        {
+                            q: "a",
+                            a: []
+                        }
+                    ]
+                }
+            }}})
+        }
+    }
+
     return <Container
         component="main"
         sx={{
@@ -62,6 +98,20 @@ const TriviaEditor = () => {
             >
                 <Box>
                     <Typography>Welcome to the editor!</Typography>
+                    <Button 
+                        variant="outlined"
+                        component="label"
+                        startIcon={<UploadFile/>}
+                    >
+                        Load .trivia File
+                        <input
+                            type="file"
+                            hidden
+                            accept=".trivia"
+                            ref={triviaFileInput}
+                            onChange={handleTriviaFileUpload}
+                        />
+                    </Button>
                     <Typography display={!triviaData ? "none" : "flex"}>File loaded: {triviaData?.name} ({triviaData?.sizeBytes} bytes)</Typography>
                 </Box>
 
@@ -88,27 +138,29 @@ const TriviaEditor = () => {
                     display="flex"
                     flexDirection="column"
                     marginY="16px"
-                >
+                    gap="16px"
+                    padding="8px"
+                    border="1px solid black"
+                    borderRadius="8px"
+                >{triviaData && <>
+                    <Typography variant="h4">Question editor</Typography>
 
-                    
-
-                </Box>
-
-                <Box display="flex" flexDirection="row">
-                    <Button variant="outlined" sx={{marginRight: "24px"}}>Add Question</Button>
-                    <Button 
-                        variant="outlined"
-                        component="label"
-                    >
-                        Load .trivia File
-                        <input
-                            type="file"
-                            hidden
-                            accept=".trivia"
-                            ref={triviaFileInput}
-                            onChange={handleTriviaFileUpload}
+                    {triviaData.parsedData.questions.map((v, i) => {
+                        return <TriviaQuestionAnswerEditor
+                            key={i}
+                            index={i}
+                            q={v.q}
+                            a={v.a}
                         />
-                    </Button>
+                    })}</>
+                }</Box>
+
+                <Box display="flex" flexDirection="column" gap="24px">
+                    <Button
+                        variant="outlined"
+                        startIcon={<Add/>}
+                        onClick={addQuestion}
+                    >{!triviaData ? "Create New Question Set" : "Add Question"}</Button>
                 </Box>
             </Box>
         </Box>
