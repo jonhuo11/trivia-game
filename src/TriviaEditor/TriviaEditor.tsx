@@ -8,7 +8,7 @@ This is a separate page from the game
 */
 
 import { Box, Button, Container, CssBaseline, TextField, Typography } from "@mui/material"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { TriviaFileContentType, TriviaQuestionType } from "./TriviaFileContentTypes"
 import TriviaFileContentParser from "./TriviaFileContentTypes"
 import TriviaQuestionAnswerEditor from "./TriviaQuestionAnswerEditor"
@@ -17,13 +17,13 @@ import FileSaver from "file-saver"
 
 export interface LoadedTriviaFile {
     name: string,
-    sizeBytes: number,
+    //sizeBytes: number,
     parsedData: TriviaFileContentType
 }
 
 const NewDefaultLoadedTriviaFile:LoadedTriviaFile = {
     name: "new_trivia_set.trivia",
-    sizeBytes: 0,
+    //sizeBytes: 0,
     parsedData: {
         questions: [
             {
@@ -43,26 +43,18 @@ const TriviaEditor = () => {
     const [showRawFileData, setShowRawFileData] = useState<boolean>(false)
 
 
-    //const triviaQAEditors = useRef<{[key in string]: TriviaQAEditorHandle}>({})
-
     const updateTriviaQuestion = (qi:number, q:TriviaQuestionType) => {
         if (triviaData && triviaData.parsedData.questions.length > qi) {
             setTriviaData(p => {
+                const qclone = [...p!.parsedData.questions]
+                qclone[qi] = q
                 const clone:LoadedTriviaFile = {
                     ...p!,
                     parsedData: {
-                        questions: [
-                            ...p!.parsedData.questions,
-                        ]
+                        questions: qclone
                     }
                 }
-                // TODO update byte size
-                clone.parsedData.questions[qi] = q
                 return clone
-
-                /*const clone = JSON.parse(JSON.stringify(p)) as LoadedTriviaFile
-                clone.parsedData.questions[qi] = q
-                return clone*/
             })
         }
     }
@@ -76,7 +68,7 @@ const TriviaEditor = () => {
                 await TriviaFileContentParser(jsonned)
                 setTriviaData({
                     name: f.name,
-                    sizeBytes: f.size,
+                    //sizeBytes: f.size,
                     parsedData: jsonned as TriviaFileContentType
                 })
             } catch(error:any) {
@@ -117,13 +109,6 @@ const TriviaEditor = () => {
             [JSON.stringify(triviaData?.parsedData, undefined, 4)],
             {type: "text/plain;charset=utf-8"}
         ), triviaData?.name)
-        // if (triviaQAEditors.current) {
-        //     console.log("QA Editors: ", triviaQAEditors.current)
-        //     for (var i in triviaQAEditors.current) {
-        //         const QAEditor = triviaQAEditors.current[i]
-        //         QAEditor.collect()
-        //     }
-        // }
     }
 
     return <Container
@@ -156,10 +141,10 @@ const TriviaEditor = () => {
                             onChange={handleTriviaFileUpload}
                         />
                     </Button>
-                    <Typography display={!triviaData ? "none" : "flex"}>File loaded: {triviaData?.name} ({triviaData?.sizeBytes} bytes)</Typography>
-                    <Button variant="outlined" startIcon={<Save/>} onClick={ExportTriviaFile}>
+                    <Typography display={!triviaData ? "none" : "flex"}>File loaded: {triviaData?.name}</Typography>
+                    {triviaData && <Button variant="outlined" startIcon={<Save/>} onClick={ExportTriviaFile}>
                         Export .trivia File
-                    </Button>
+                    </Button>}
                 </Box>
 
                 {triviaData && <Box

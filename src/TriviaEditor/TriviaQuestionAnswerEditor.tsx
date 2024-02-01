@@ -12,11 +12,7 @@ interface TriviaQuestionAnswerEditorProps {
     handleDeleteQA?: (qi:number) => void,
 }
 
-/*
-export interface TriviaQAEditorHandle {
-    // returns data needed to update the question in triviaData
-    collect: () => TriviaQuestionType
-}*/
+
 
 const TriviaQuestionAnswerEditor = (
     {
@@ -27,18 +23,6 @@ const TriviaQuestionAnswerEditor = (
         handleDeleteQA
     }: TriviaQuestionAnswerEditorProps
 ) => {
-
-    // useImperativeHandle(ref, () => {
-    //     return {
-    //         collect() {
-    //             console.log("collect!")
-    //             return {
-    //                 q: "temp",
-    //                 a: []
-    //             }
-    //         }
-    //     }
-    // }, [])
 
     return <Box 
         display="flex"
@@ -79,7 +63,7 @@ const TriviaQuestionAnswerEditor = (
                 label={`Answer ${i}`}
                 fullWidth
                 size="small"
-                defaultValue={v.a}
+                value={v.a}
                 onChange={evt => {
                     if (!handleUpdateTriviaQA) return
                     const clone = {
@@ -122,7 +106,7 @@ const TriviaQuestionAnswerEditor = (
                         q: q,
                         a: [...a]
                     }
-                    clone.a.splice(i)
+                    clone.a.splice(i, 1)
                     handleUpdateTriviaQA(index, clone)
                 }}>
                     Delete
