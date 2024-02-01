@@ -1,14 +1,12 @@
 
 import { Add, Delete } from "@mui/icons-material"
 import { Box, Button, TextField } from "@mui/material"
+import { TriviaAnswerType } from "./TriviaFileContentTypes"
 
 interface TriviaQuestionAnswerEditorProps {
     index: number,
     q: string,
-    a: {
-        a: string,
-        correct?: boolean
-    }[],
+    a: TriviaAnswerType[],
     handleAddAnswer?: () => void
     handleDeleteAnswer?: (i: number) => void
 }
@@ -39,7 +37,11 @@ const TriviaQuestionAnswerEditor = ({
             display="flex"
             flexDirection="column"
             gap="8px"
-        >{a.map((v, i) => <Box display="flex" flexDirection="row" gap="4px">
+        >{a.map((v, i) => <Box
+            display="flex"
+            flexDirection="row"
+            gap="4px"
+        >
             <TextField
                 key={i}
                 label={`Answer ${i}`}
@@ -47,11 +49,26 @@ const TriviaQuestionAnswerEditor = ({
                 size="small"
                 defaultValue={v.a}
             />
-            <Button variant="outlined" endIcon={<Delete/>} size="small">
-                Delete
-            </Button>
-            </Box>)}
-        </Box>
+            <Box 
+                display="flex"
+                flexDirection="row"
+                justifyContent="space-between"
+                minWidth="200px"
+                flexGrow={1}
+            >
+                <Button
+                    variant="outlined"
+                    size="small"
+                    color={v.correct ? "success" : "error"}
+                    sx={{
+                        flexGrow: 1
+                    }}
+                >{v.correct ? "Correct" : "Wrong"}</Button>
+                <Button variant="outlined" endIcon={<Delete/>} size="small">
+                    Delete
+                </Button>
+            </Box>
+        </Box>)}</Box>
         <Box
             display="flex"
             flexDirection="row"

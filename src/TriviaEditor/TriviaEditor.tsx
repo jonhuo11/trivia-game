@@ -9,8 +9,8 @@ This is a separate page from the game
 
 import { Box, Button, Container, CssBaseline, TextField, Typography } from "@mui/material"
 import { useRef, useState } from "react"
-import { TriviaFileContentType } from "./TriviaFileContent"
-import TriviaFileContentParser from "./TriviaFileContent"
+import { TriviaFileContentType } from "./TriviaFileContentTypes"
+import TriviaFileContentParser from "./TriviaFileContentTypes"
 import TriviaQuestionAnswerEditor from "./TriviaQuestionAnswerEditor"
 import { Add, UploadFile } from "@mui/icons-material"
 
