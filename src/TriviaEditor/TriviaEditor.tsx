@@ -8,11 +8,12 @@ This is a separate page from the game
 */
 
 import { Box, Button, Container, CssBaseline, TextField, Typography } from "@mui/material"
-import { useRef, useState } from "react"
-import { TriviaFileContentType } from "./TriviaFileContentTypes"
+import { useEffect, useRef, useState } from "react"
+import { TriviaFileContentType, TriviaQuestionType } from "./TriviaFileContentTypes"
 import TriviaFileContentParser from "./TriviaFileContentTypes"
 import TriviaQuestionAnswerEditor from "./TriviaQuestionAnswerEditor"
-import { Add, UploadFile } from "@mui/icons-material"
+import { Add, Save, UploadFile } from "@mui/icons-material"
+import FileSaver from "file-saver"
 
 export interface LoadedTriviaFile {
     name: string,
@@ -26,7 +27,7 @@ const NewDefaultLoadedTriviaFile:LoadedTriviaFile = {
     parsedData: {
         questions: [
             {
-                q: "New Question",
+                q: "New question",
                 a: []
             }
         ]
@@ -40,6 +41,31 @@ const TriviaEditor = () => {
     const [triviaData, setTriviaData] = useState<LoadedTriviaFile>()
 
     const [showRawFileData, setShowRawFileData] = useState<boolean>(false)
+
+
+    //const triviaQAEditors = useRef<{[key in string]: TriviaQAEditorHandle}>({})
+
+    const updateTriviaQuestion = (qi:number, q:TriviaQuestionType) => {
+        if (triviaData && triviaData.parsedData.questions.length > qi) {
+            setTriviaData(p => {
+                const clone:LoadedTriviaFile = {
+                    ...p!,
+                    parsedData: {
+                        questions: [
+                            ...p!.parsedData.questions,
+                        ]
+                    }
+                }
+                // TODO update byte size
+                clone.parsedData.questions[qi] = q
+                return clone
+
+                /*const clone = JSON.parse(JSON.stringify(p)) as LoadedTriviaFile
+                clone.parsedData.questions[qi] = q
+                return clone*/
+            })
+        }
+    }
     
 
     const handleTriviaFileUpload = async () => {
@@ -68,26 +94,44 @@ const TriviaEditor = () => {
         if (!triviaData) {
             setTriviaData(NewDefaultLoadedTriviaFile)
         } else {
-            setTriviaData(p => {if (p) { return {
-                ...p,
-                parsedData: {
-                    questions: [
-                        ...p.parsedData.questions,
-                        {
-                            q: "a",
-                            a: []
-                        }
-                    ]
+            setTriviaData(p => {
+                const clone:LoadedTriviaFile = {
+                    ...p!,
+                    parsedData: {
+                        questions: [
+                            ...p!.parsedData.questions,
+                            {
+                                q: "New question", a: []
+                            }
+                        ]
+                    }
                 }
-            }}})
+                return clone
+            })
         }
+    }
+
+    const ExportTriviaFile = () => {
+        console.log("Exporting .trivia file...", triviaData?.parsedData)
+        FileSaver.saveAs(new Blob(
+            [JSON.stringify(triviaData?.parsedData, undefined, 4)],
+            {type: "text/plain;charset=utf-8"}
+        ), triviaData?.name)
+        // if (triviaQAEditors.current) {
+        //     console.log("QA Editors: ", triviaQAEditors.current)
+        //     for (var i in triviaQAEditors.current) {
+        //         const QAEditor = triviaQAEditors.current[i]
+        //         QAEditor.collect()
+        //     }
+        // }
     }
 
     return <Container
         component="main"
         sx={{
             backgroundColor: "azure",
-            height: "100%"
+            height: "100%",
+            paddingY: "16px"
         }}
     >
         <CssBaseline/>
@@ -113,11 +157,15 @@ const TriviaEditor = () => {
                         />
                     </Button>
                     <Typography display={!triviaData ? "none" : "flex"}>File loaded: {triviaData?.name} ({triviaData?.sizeBytes} bytes)</Typography>
+                    <Button variant="outlined" startIcon={<Save/>} onClick={ExportTriviaFile}>
+                        Export .trivia File
+                    </Button>
                 </Box>
 
                 {triviaData && <Box
                     display="flex"
                     flexDirection="column"
+                    marginTop="16px"
                 >
                     <Button 
                         variant="outlined"
@@ -142,18 +190,24 @@ const TriviaEditor = () => {
                     padding="8px"
                     border="1px solid black"
                     borderRadius="8px"
-                >{triviaData && <>
-                    <Typography variant="h4">Question editor</Typography>
+                    sx={{
+                        visibility: triviaData ? "visible" : "hidden",
+                        backgroundColor:"white"
+                    }}
+                >
+                    <Typography variant="h4">Question Editor</Typography>
 
-                    {triviaData.parsedData.questions.map((v, i) => {
+                    {triviaData?.parsedData.questions.map((v, i) => {
                         return <TriviaQuestionAnswerEditor
                             key={i}
                             index={i}
                             q={v.q}
                             a={v.a}
+                            handleUpdateTriviaQA={updateTriviaQuestion}
+                            // ref={e => triviaQAEditors.current[i] = e!}
                         />
-                    })}</>
-                }</Box>
+                    })}
+                </Box>
 
                 <Box display="flex" flexDirection="column" gap="24px">
                     <Button
