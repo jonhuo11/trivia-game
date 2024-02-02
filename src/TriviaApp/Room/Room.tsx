@@ -43,13 +43,13 @@ const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
             return initialRoomState
         case RoomActions.UpdateRoomState:
             const p = action.payload as RoomUpdateMessage
-            //console.log("Room update", p)
+            console.log("Room update", p)
             return {
                 ...state,
                 code: p.code,
                 playerList: p.players,
                 chat: p.chat,
-                isOwner: false,
+                isOwner: state.isOwner || p.created === true,
             }
         default:
             break
@@ -192,6 +192,11 @@ const Room = () => {
         }
     }
 
+    // starts the game
+    const startGame = () => {
+
+    }
+
     return <RoomStateContext.Provider value={roomState}>
         <RoomStateDispatchContext.Provider value={roomStateDispatch}>
             <Box 
@@ -237,6 +242,7 @@ const Room = () => {
                         </IconButton>
                     </Stack>
                     <Box>
+                        <Typography>Is owner: {`${roomState.isOwner}`}</Typography>
                         <Typography>Players:</Typography>
                         {roomState.playerList && roomState.playerList.map((v, i) => {
                             return <Typography key={i}>{v}</Typography>
@@ -246,6 +252,7 @@ const Room = () => {
                     <TriviaGame
                         wsSendGameMessage={wsSendGameMessage}
                         ref={gameRef}
+                        startGame={startGame}
                     />
 
                     <Box sx={{

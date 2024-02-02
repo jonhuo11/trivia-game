@@ -29,6 +29,7 @@ const initialTriviaGameState:TriviaGameState = {
 
 interface TriviaGameProps {
     wsSendGameMessage: (stringifiedContent:string) => void
+    startGame: () => void
 }
 
 export interface TriviaGameHandle {
@@ -113,6 +114,9 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
             />
             <Button
                 variant="outlined"
+                sx={{
+                    
+                }}
                 onClick={startGame}
             >
                 Start Game

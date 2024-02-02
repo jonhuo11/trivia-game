@@ -37,6 +37,7 @@ export interface RoomUpdateMessage {
     code: string
     players: string[]
     chat: string[]
+    created?: boolean
 }
 
 // incoming update from server
