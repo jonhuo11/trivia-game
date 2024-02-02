@@ -33,6 +33,7 @@ interface TriviaGameProps {
 
 export interface TriviaGameHandle {
     onServerTriviaGameUpdate: (update: TriviaGameUpdate) => void
+    reset: () => void // when the websocket disconnects
     ping: () => void
 }
 
@@ -44,6 +45,10 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
     const [gameState, setGameState] = useState(initialTriviaGameState)
 
     // TODO reset gameState when disconnected or first connecting
+
+    const onWebsocketDisconnect = () => {
+        setGameState(initialTriviaGameState)
+    }
 
     const onServerTriviaGameUpdate = (update: TriviaGameUpdate):void => {
         //console.log("Got trivia game update", update)
@@ -73,6 +78,10 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
     useImperativeHandle(ref, () => {
         return {
             onServerTriviaGameUpdate,
+            reset() {
+                // when websocket disconnects
+                onWebsocketDisconnect()
+            },
             ping() {
                 console.log("Pinged TriviaGame")
             }
@@ -109,13 +118,14 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
                 Start Game
             </Button>
         </Box>}
-
+        {/*
         <Box>
             <QuestionDisplay
                 q="Which voice actor does the voice for Quagmire?"
                 a={["Seth Macfarlane", "Mila Kunis"]}
             />
         </Box>
+        */}
     </Box>
 })
 

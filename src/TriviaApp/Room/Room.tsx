@@ -6,7 +6,8 @@ import { ContentCopy } from "@mui/icons-material"
 import Chat from "./Chat"
 import TriviaGame, { TriviaGameHandle } from "../Trivia/TriviaGame"
 
-const DebugMode:boolean = true
+// NOTE Change this for debug on/off
+const DebugMode:boolean = false
 
 
 const WebSocketServerAddress = "ws://localhost:9100/ws"
@@ -109,6 +110,9 @@ const Room = () => {
         }
         setConnected(false)
         roomStateDispatch({action:RoomActions.Reset, payload: ""})
+        if (gameRef.current) {
+            gameRef.current.reset()
+        }
         console.log("Disconnected")
     }
 
