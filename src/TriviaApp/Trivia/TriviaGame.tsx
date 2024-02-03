@@ -4,10 +4,12 @@ import TeamsList from "./TeamsList"
 import { Box, Button, Typography } from "@mui/material"
 import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages"
 import QuestionDisplay from "./QuestionDisplay"
+import { ObjectReplace } from "../../Util"
 
 enum TriviaState {
-    LOBBY = 0,
-    GAME,
+    INLIMBO = 0,
+    INROUND = 1,
+    INLOBBY = 2
 }
 
 interface TriviaGameState {
@@ -15,16 +17,16 @@ interface TriviaGameState {
     state: TriviaState
 
     // blue team
-    blue: string[],
+    blueTeam: string[],
 
     // red team
-    red: string[]
+    redTeam: string[]
 }
 
 const initialTriviaGameState:TriviaGameState = {
-    state: TriviaState.LOBBY,
-    blue: [],
-    red: []
+    state: TriviaState.INLOBBY,
+    blueTeam: [],
+    redTeam: []
 }
 
 interface TriviaGameProps {
@@ -54,25 +56,33 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
     const onServerTriviaGameUpdate = (update: TriviaGameUpdate):void => {
         //console.log("Got trivia game update", update)
         switch(gameState.state) {
-            case TriviaState.LOBBY: {
+            case TriviaState.INLOBBY: {
                 /*
-                While in lobby, players can
+                While in limbo, players can
                 - join blue/red team
+
+                While in round, players can
+                - vote
                 */
 
-                // joining teams
-                setGameState(c => ({
-                    ...c,
-                    blue: update.blueTeam,
-                    red: update.redTeam
-                }))
+                // TODO check here if gameState was changed by server
                 break
             }
-            case TriviaState.GAME: {
+            case TriviaState.INLIMBO: {
+                break
+            }
+            case TriviaState.INROUND: {
                 // TODO game logic
                 break
             }
         }
+        // update local state
+        setGameState(c => {
+            const newC = {...c}
+            ObjectReplace(newC, update)
+            //console.log(newC)
+            return newC
+        })
     }
 
     // passes the callback for when trivia game updates are received back to the room manager
@@ -101,10 +111,10 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>((
     }
 
     return <Box>
-        {gameState.state === TriviaState.LOBBY && <Box>
+        {gameState.state === TriviaState.INLOBBY && <Box>
             <TeamsList
-                blue={gameState.blue}
-                red={gameState.red}
+                blue={gameState.blueTeam}
+                red={gameState.redTeam}
                 handleClickBlueTeam={() => {
                     joinTeam("blue")
                 }}

@@ -15,7 +15,7 @@ const WebSocketServerAddress = "ws://localhost:9100/ws"
 interface RoomState {
     connected: boolean
     code: string
-    playerList: string[]
+    players: string[]
     chat: string[]
     isOwner: boolean
 }
@@ -33,7 +33,7 @@ interface RoomAction {
 const initialRoomState:RoomState = {
     connected: false,
     code: "",
-    playerList: [],
+    players: [],
     chat: [],
     isOwner: false,
 }
@@ -43,14 +43,13 @@ const roomStateReducer = (state:RoomState, action:RoomAction):RoomState => {
             return initialRoomState
         case RoomActions.UpdateRoomState:
             const p = action.payload as RoomUpdateMessage
-            console.log("Room update", p)
-            return {
+            const newState = {
                 ...state,
-                code: p.code,
-                playerList: p.players,
-                chat: p.chat,
+                ...p,
                 isOwner: state.isOwner || p.created === true,
             }
+            //console.log(newState)
+            return newState
         default:
             break
     }
@@ -72,11 +71,11 @@ const Room = () => {
     const onServerMessage = (event:MessageEvent) => {
         const msgs = JSON.parse(event.data) as ServerMessage[]
         for (const msgkey in msgs) {
+            
             const msg = {
                 type: msgs[msgkey].type,
                 content: JSON.parse(atob(msgs[msgkey].content))
             }
-            //console.log(msg)
             switch(msg.type) {
                 case ServerMessageType.ServerError:
                     console.error(msg)
@@ -89,11 +88,8 @@ const Room = () => {
                     })
                     break
                 case ServerMessageType.TriviaGameUpdate:
-                    //console.log("RoomManager got game update type")
-                    //console.log(gameRef.current)
                     // trigger the callback from TriviaGame from here
                     if (gameRef.current) {
-                        //gameRef.current.ping()
                         gameRef.current.onServerTriviaGameUpdate(msg.content as TriviaGameUpdate)
                     }
                     break
@@ -244,7 +240,7 @@ const Room = () => {
                     <Box>
                         <Typography>Is owner: {`${roomState.isOwner}`}</Typography>
                         <Typography>Players:</Typography>
-                        {roomState.playerList && roomState.playerList.map((v, i) => {
+                        {roomState.players && roomState.players.map((v, i) => {
                             return <Typography key={i}>{v}</Typography>
                         })}
                     </Box>

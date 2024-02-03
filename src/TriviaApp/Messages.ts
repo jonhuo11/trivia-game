@@ -42,8 +42,8 @@ export interface RoomUpdateMessage {
 
 // incoming update from server
 export interface TriviaGameUpdate {
-    blueTeam: string[]
-    redTeam: string[]
+    blueTeam?: string[]
+    redTeam?: string[]
 }
 
 // outgoing, updates related to the trivia game itself
