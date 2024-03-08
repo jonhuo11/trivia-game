@@ -1,5 +1,6 @@
 import {
 	forwardRef,
+	useCallback,
 	useContext,
 	useImperativeHandle,
 	useState,
@@ -9,6 +10,7 @@ import TeamsList from "./TeamsList";
 import { Box, Button } from "@mui/material";
 import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages";
 import { ObjectReplace } from "../../Util";
+import QuestionDisplay from "./QuestionDisplay";
 
 enum TriviaState {
 	INLIMBO = 0,
@@ -55,11 +57,11 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 
 		// TODO reset gameState when disconnected or first connecting
 
-		const onWebsocketDisconnect = () => {
+		const onWebsocketDisconnect = useCallback(() => {
 			setGameState(initialTriviaGameState);
-		};
+		}, [setGameState]);
 
-	    const onServerTriviaGameUpdate = (update: TriviaGameUpdate): void => {
+	    const onServerTriviaGameUpdate = useCallback((update: TriviaGameUpdate): void => {
 			// use cstate here to get current state value as setState calls are batched
 			setGameState((cstate) => {
 				if (update.state !== cstate.state) {
@@ -90,7 +92,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 				ObjectReplace(newC, update);
 				return newC;
 			});
-		};
+		}, [setGameState]);
 
 		// passes the callback for when trivia game updates are received back to the room manager
 		useImperativeHandle(
@@ -110,16 +112,16 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 			[]
 		);
 
-		const joinTeam = (color: "blue" | "red") => {
+		const joinTeam = useCallback((color: "blue" | "red") => {
 			const tgam: TriviaGameActionMessage = {
 				join: color === "blue" ? 0 : 1,
 			};
 			wsSendGameMessage(JSON.stringify(tgam));
-		};
+		}, [wsSendGameMessage]);
 
-		const startGame = () => {
+		const startGame = useCallback(() => {
 			roomStartGame();
-		};
+		}, [roomStartGame]);
 
 		return (
 			<Box>
@@ -145,14 +147,14 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 						</Button>
 					</Box>
 				)}
-				{/*
-        <Box>
-            <QuestionDisplay
-                q="Which voice actor does the voice for Quagmire?"
-                a={["Seth Macfarlane", "Mila Kunis"]}
-            />
-        </Box>
-        */}
+				
+                <Box>
+                    <QuestionDisplay
+                        q="Which voice actor does the voice for Quagmire?"
+                        a={["Seth Macfarlane", "Mila Kunis"]}
+                    />
+                </Box>
+        
 			</Box>
 		);
 	}

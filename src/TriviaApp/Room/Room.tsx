@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
-import { createContext, useReducer, useRef, useState } from "react";
+import { createContext, useCallback, useReducer, useRef, useState } from "react";
 import JoinRoom from "./JoinRoom";
 import {
 	Action,
@@ -16,7 +16,7 @@ import Chat from "./Chat";
 import TriviaGame, { TriviaGameHandle } from "../Trivia/TriviaGame";
 
 // NOTE Change this for debug on/off
-const DebugMode: boolean = false;
+const DebugMode: boolean = true;
 
 const WebSocketServerAddress = "ws://localhost:9100/ws";
 
@@ -79,7 +79,7 @@ const Room = () => {
 
 	const gameRef = useRef<TriviaGameHandle>(null);
 
-	const onServerMessage = (event: MessageEvent) => {
+	const onServerMessage = useCallback((event: MessageEvent) => {
 		const msgs = JSON.parse(event.data) as ServerMessage[];
 		for (const msgkey in msgs) {
 			const msg = {
@@ -108,9 +108,9 @@ const Room = () => {
 					console.log("Other message type");
 			}
 		}
-	};
+	}, [roomStateDispatch, gameRef.current]);
 
-	const disconnect = () => {
+	const disconnect = useCallback(() => {
 		if (ws.current) {
 			ws.current.close();
 			ws.current = null;
@@ -121,9 +121,9 @@ const Room = () => {
 			gameRef.current.reset();
 		}
 		console.log("Disconnected");
-	};
+	}, [setConnected, roomStateDispatch]);
 
-	const connect = () => {
+	const connect = useCallback(() => {
 		const socket = new WebSocket(WebSocketServerAddress);
 
 		socket.onopen = (event: Event) => {
@@ -152,9 +152,9 @@ const Room = () => {
 		socket.onmessage = onServerMessage;
 
 		ws.current = socket;
-	};
+	}, [setConnected, disconnect, ws.current]);
 
-	const wsSendMessage = (type: PlayerMessageType, content: string) => {
+	const wsSendMessage = useCallback((type: PlayerMessageType, content: string) => {
 		if (!ws.current) {
 			return;
 		}
@@ -164,33 +164,33 @@ const Room = () => {
 				content: content,
 			})
 		);
-	};
+	}, [ws.current]);
 
-	const handleJoinRoom = (code: string) => {
+	const handleJoinRoom = useCallback((code: string) => {
 		const jrm: JoinRoomMessage = {
 			code: code,
 		};
 		wsSendMessage(PlayerMessageType.JoinRoom, JSON.stringify(jrm));
-	};
+	}, [wsSendMessage]);
 
-	const createRoom = () => {
+	const createRoom = useCallback(() => {
 		wsSendMessage(PlayerMessageType.CreateRoom, "");
-	};
+	}, [wsSendMessage]);
 
-	const onChatSend = (msg: string) => {
+	const onChatSend = useCallback((msg: string) => {
 		const chat: RoomActionMessage = {
 			chat: msg,
 		};
 		wsSendMessage(PlayerMessageType.RoomAction, JSON.stringify(chat));
-	};
+	}, [wsSendMessage]);
 
 	// pass down websocket send to child for game messages
-	const wsSendGameMessage = (stringifiedContent: string) => {
+	const wsSendGameMessage = useCallback((stringifiedContent: string) => {
 		wsSendMessage(PlayerMessageType.GameAction, stringifiedContent);
-	};
+	}, [wsSendMessage]);
 
 	// owner is allowed to start the game
-	const startGame = () => {
+	const startGame = useCallback(() => {
 		if (!roomState.isOwner) {
 			console.error("Only the owner can start games");
 			return;
@@ -199,7 +199,7 @@ const Room = () => {
 			start: true,
 		};
 		wsSendMessage(PlayerMessageType.RoomAction, JSON.stringify(ram));
-	};
+	}, [roomState, wsSendMessage]);
 
 	return (
 		<RoomStateContext.Provider value={roomState}>
