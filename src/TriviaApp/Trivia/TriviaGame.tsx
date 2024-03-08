@@ -11,6 +11,7 @@ import { Box, Button } from "@mui/material";
 import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages";
 import { ObjectReplace } from "../../Util";
 import QuestionDisplay from "./QuestionDisplay";
+import VoteList from "./VoteList";
 
 enum TriviaState {
 	INLIMBO = 0,
@@ -124,7 +125,10 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 		}, [roomStartGame]);
 
 		return (
-			<Box>
+			<Box
+                display="flex"
+                flexDirection="column"
+            >
 				{gameState.state === TriviaState.INLOBBY && (
 					<Box>
 						<TeamsList
@@ -148,11 +152,25 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 					</Box>
 				)}
 				
-                <Box>
-                    <QuestionDisplay
-                        q="Which voice actor does the voice for Quagmire?"
-                        a={["Seth Macfarlane", "Mila Kunis"]}
-                    />
+                <QuestionDisplay
+                    q="Which voice actor does the voice for Quagmire?"
+                    a={["Seth Macfarlane", "Mila Kunis"]}
+                />
+
+
+                <Box
+                    alignSelf="center"
+                >
+                    <VoteList items={[
+                        {
+                            player: "joe",
+                            voted: false
+                        },
+                        {
+                            player: "bob",
+                            voted: true
+                        }
+                    ]}/>
                 </Box>
         
 			</Box>

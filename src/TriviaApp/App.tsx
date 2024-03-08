@@ -2,7 +2,11 @@ import { Container, CssBaseline, ThemeProvider, createTheme } from '@mui/materia
 import './App.css'
 import Room from './Room/Room'
 
-const defaultTheme = createTheme()
+const defaultTheme = createTheme({
+    palette: {
+        mode: 'dark'
+    }
+})
 
 function App() {
     return (<>
