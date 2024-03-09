@@ -17,7 +17,7 @@ interface VoteListProps {
 }
 
 
-const VoteListElement = ({
+const VoteListElement = memo(({
     v,
     reverse=false,
     showAvatar=true,
@@ -46,7 +46,7 @@ const VoteListElement = ({
             sx={{bgcolor: green[300]}}
         >{numToAlpha(v.voted)}</Avatar>}
     </Box>
-</Paper>
+</Paper>)
 
 const VoteList = memo(({items, reverse=false, color}: VoteListProps) => {
     return <Box

@@ -1,13 +1,14 @@
 import { Box, Button, Card, CardActions, CardContent, Typography } from "@mui/material"
-import { Player } from "./TriviaGame"
+import { TriviaPlayer } from "./TriviaGame"
+import { memo } from "react"
 
 interface TeamListCardProps {
     teamTitle: string,
-    team: Player[],
+    team: string[],
     handleJoin?: ()=>void
 }
 
-const TeamListCard = ({teamTitle, team, handleJoin}: TeamListCardProps) => {
+const TeamListCard = memo(({teamTitle, team, handleJoin}: TeamListCardProps) => {
     return <Card sx={{
         display: "flex",
         flexDirection: "column",
@@ -17,7 +18,7 @@ const TeamListCard = ({teamTitle, team, handleJoin}: TeamListCardProps) => {
         <CardContent>
             <Typography>{teamTitle}</Typography>
             <Box>{team.map((v, i) => {
-                return <Typography key={i}>{v.name}</Typography>
+                return <Typography key={i}>{v}</Typography>
             })}</Box>
         </CardContent>
         <CardActions>
@@ -28,6 +29,6 @@ const TeamListCard = ({teamTitle, team, handleJoin}: TeamListCardProps) => {
             </Box>
         </CardActions>
     </Card>
-}
+})
 
 export default TeamListCard

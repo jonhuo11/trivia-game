@@ -1,15 +1,16 @@
 import { Card, CardContent, Grid, Typography } from "@mui/material"
 import TeamListCard from "./TeamListCard"
-import { Player } from "./TriviaGame"
+import { TriviaPlayer } from "./TriviaGame"
+import { memo, useMemo } from "react"
 
 interface TeamsListProps {
-    blue: Player[]
-    red: Player[]
+    blue: string[]
+    red: string[]
     handleClickBlueTeam?: ()=>void
     handleClickRedTeam?: ()=>void
 }
 
-const TeamsList = ({
+const TeamsList = memo(({
     blue,
     red,
     handleClickBlueTeam,
@@ -33,6 +34,6 @@ const TeamsList = ({
             <TeamListCard teamTitle="Red Team" team={red} handleJoin={handleClickRedTeam}/>
         </Grid>
     </Grid>
-}
+})
 
 export default TeamsList

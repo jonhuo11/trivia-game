@@ -10,8 +10,10 @@ import {
 	ListItemText,
 	Typography,
 } from "@mui/material";
+import { memo } from "react";
 
 interface QuestionDisplayProps {
+    timer?: number
 	q: string;
     img?: string;
 	a: string[];
@@ -23,7 +25,7 @@ const AlphabetUpper: string[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 /*
 Kahoot style question display main question in the center box, answers below
 */
-const QuestionDisplay = ({ q, img, a, selected, setSelected = ()=>{}}: QuestionDisplayProps) => {
+const QuestionDisplay = memo(({ timer, q, img, a, selected, setSelected = ()=>{}}: QuestionDisplayProps) => {
 	return (
 		<Box
 			sx={{
@@ -40,8 +42,11 @@ const QuestionDisplay = ({ q, img, a, selected, setSelected = ()=>{}}: QuestionD
                         alt="Question image"
                         style={{maxHeight: "40vh"}}
                     />}
-					<CardContent>
-						<Typography textAlign="center">{q}</Typography>
+					<CardContent sx={{
+                        textAlign:"center"
+                    }}>
+						<Typography>{q}</Typography>
+                        {timer !== undefined && <Typography>({timer})</Typography>}
 					</CardContent>
 				</Card>
 			</Box>
@@ -52,7 +57,7 @@ const QuestionDisplay = ({ q, img, a, selected, setSelected = ()=>{}}: QuestionD
 				}}>
 				<List component="nav">
 					{a.map((v, i) => (
-						<ListItemButton onClick={() => {setSelected(i)}}>
+						<ListItemButton key={i} onClick={() => {setSelected(i)}}>
 							<ListItemText
 								key={i}
 								primary={`${AlphabetUpper[i]}) ${v}`}
@@ -64,6 +69,6 @@ const QuestionDisplay = ({ q, img, a, selected, setSelected = ()=>{}}: QuestionD
 			</Box>
 		</Box>
 	);
-};
+});
 
 export default QuestionDisplay;

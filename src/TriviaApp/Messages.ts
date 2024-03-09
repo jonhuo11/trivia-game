@@ -41,14 +41,25 @@ export interface RoomUpdateMessage {
 	created?: boolean;
 }
 
+export enum TriviaGameUpdateType {
+    TSUTTeam = 0,
+    TSUTGoToRoundFromLimbo = 1,
+	TSUTGoToLimboFromRound = 2,
+    TSUTStartup = 3
+}
+
 // incoming update from server, on server side is TriviaStateUpdateMessage
 export interface TriviaGameUpdate {
-	blueTeam?: string[];
-	redTeam?: string[];
+    type: number;
+	blueTeamIds: string[];
+	redTeamIds: string[];
 	state: number;
 	round: number;
-	roundTime?: number;
-	limboTime?: number;
+	roundTime: number;
+	limboTime: number;
+    startupTime: number;
+    question: string;
+    answers: string[];
 }
 
 // outgoing, updates related to the trivia game itself

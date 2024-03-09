@@ -1,15 +1,17 @@
 import {
+    createRef,
 	forwardRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useImperativeHandle,
+	useRef,
 	useState,
 } from "react";
 import { RoomStateContext } from "../Room/Room";
 import TeamsList from "./TeamsList";
-import { Box, Button } from "@mui/material";
-import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages";
-import { ObjectReplace } from "../../Util";
+import { Box, Button, Typography } from "@mui/material";
+import { TriviaGameActionMessage, TriviaGameUpdate, TriviaGameUpdateType } from "../Messages";
 import QuestionDisplay from "./QuestionDisplay";
 import VoteList from "./VoteList";
 import { blue, red } from "@mui/material/colors";
@@ -20,9 +22,8 @@ enum TriviaState {
 	INLOBBY = 2,
 }
 
-export type Player = {
-    id: string
-    name: string
+export type TriviaPlayer = {
+    id: string // matches the one in Room
     voted?: number // which option the player voted for
 }
 
@@ -34,17 +35,43 @@ interface TriviaGameState {
 	round: number;
 
 	// blue team
-	blueTeam: Player[];
+	blueTeamIds: string[];
 
 	// red team
-	redTeam: Player[];
+	redTeamIds: string[];
+
+    // players
+    players: {
+        [id: string]: TriviaPlayer
+    }
+
+    // question
+    question: string
+
+    // answers
+    answers: string[],
+
+    // time per round
+    roundTimeSeconds: number,
+
+    // time per limbo
+    limboTimeSeconds: number
+
+    // time to startup
+    startupTimeSeconds: number
 }
 
 const initialTriviaGameState: TriviaGameState = {
 	state: TriviaState.INLOBBY,
 	round: 0,
-	blueTeam: [],
-	redTeam: [],
+	blueTeamIds: [],
+	redTeamIds: [],
+    players: {},
+    question: "",
+    answers: [],
+    roundTimeSeconds: 0,
+    limboTimeSeconds: 0,
+    startupTimeSeconds: 0
 };
 
 interface TriviaGameProps {
@@ -63,42 +90,88 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 		const roomState = useContext(RoomStateContext); // chat, playerlist, etc
 		const [gameState, setGameState] = useState(initialTriviaGameState);
 
-		// TODO reset gameState when disconnected or first connecting
+        const [timer, setTimer] = useState(0);
+
+        const [starting, setStarting ] = useState(false);
+
+		useEffect(() => {
+            const ti = window.setInterval(() => {
+                setTimer(p => {
+                    console.log("Trivia timer", p)
+                    return Math.max(0, p - 1)
+                })
+            }, 950) // set a little faster to compesnate for lag?
+
+            return () => {
+                window.clearInterval(ti)
+            }
+        }, [])
 
 		const onWebsocketDisconnect = useCallback(() => {
 			setGameState(initialTriviaGameState);
 		}, [setGameState]);
 
+
 	    const onServerTriviaGameUpdate = useCallback((update: TriviaGameUpdate): void => {
+            console.log(update)
+
 			// use cstate here to get current state value as setState calls are batched
-			setGameState((cstate) => {
+			setGameState((cstate:TriviaGameState) => {
 				if (update.state !== cstate.state) {
 					console.log(`Prev state ${cstate.state} New state ${update.state}`)
 				}
-				switch (cstate.state) {
-					case TriviaState.INLOBBY: {
-						/*
-                    While in limbo, players can
-                    - join blue/red team
+                
+                const newState:TriviaGameState = { ...cstate };
 
-                    While in round, players can
-                    - vote
-                    */
+                switch(update.type) {
+                    case TriviaGameUpdateType.TSUTTeam:
+                        // a player changed or joined a team, this only happens while InLobby
+                        newState.blueTeamIds = update.blueTeamIds || []
+                        newState.redTeamIds = update.redTeamIds || []
+                        const allPlayers = [...newState.blueTeamIds, ...newState.redTeamIds]
+                        allPlayers.map(v => {
+                            if (!(v in newState.players)) {
+                                console.log("Adding new player")
+                                newState.players[v] = {
+                                    id: v,
+                                }
+                            }
+                        })
+                        
+                        break
 
-						// TODO check here if gameState was changed by server
-						break;
-					}
-					case TriviaState.INLIMBO: {
-						break;
-					}
-					case TriviaState.INROUND: {
-						// TODO game logic
-						break;
-					}
-				}
-				const newC = { ...cstate };
-				ObjectReplace(newC, update);
-				return newC;
+                    case TriviaGameUpdateType.TSUTGoToRoundFromLimbo:
+                        // load the new question and answers
+                        newState.question = update.question
+                        newState.answers = update.answers
+
+                        // update the round number and state
+                        newState.round = update.round
+                        newState.state = update.state
+
+                        // reset the timer
+                        setTimer(cstate.roundTimeSeconds)
+
+                        break
+
+                    case TriviaGameUpdateType.TSUTGoToLimboFromRound:
+
+                        break
+                    case TriviaGameUpdateType.TSUTStartup:
+                        // round and limbo times will be provided
+                        console.log("Starting game...")
+                        newState.roundTimeSeconds = update.roundTime
+                        newState.limboTimeSeconds = update.limboTime
+                        newState.startupTimeSeconds = update.startupTime
+                        setTimer(newState.startupTimeSeconds)
+                        setStarting(true)
+                        break
+                    default:
+                        console.error("Unrecognized game update type")
+                        return cstate
+                }
+
+				return newState;
 			});
 		}, [setGameState]);
 
@@ -139,8 +212,8 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 				{gameState.state === TriviaState.INLOBBY && (
 					<Box>
 						<TeamsList
-							blue={gameState.blueTeam}
-							red={gameState.redTeam}
+							blue={gameState.blueTeamIds}
+							red={gameState.redTeamIds}
 							handleClickBlueTeam={() => {
 								joinTeam("blue");
 							}}
@@ -156,39 +229,29 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 							onClick={startGame}>
 							Start Game
 						</Button>
+                        {starting && <Typography>Game starting in {timer}...</Typography>}
 					</Box>
 				)}
 
                 <Box
-                    display="flex"
+                    display={gameState.state === TriviaState.INLIMBO || gameState.state === TriviaState.INROUND ? "flex" : "none"}
                     flexDirection="row"
                     justifyContent="space-between"
                     alignItems="center"
                 >
                     <VoteList 
-                        items={[{
-                            player:"Joe",
-                            voted: 5
-                        }]}
+                        items={[]}
                         color={blue[300]}
                     />
 
                     <QuestionDisplay
-                        q="Which voice actor does the voice for Quagmire?"
-                        img="https://a1cf74336522e87f135f-2f21ace9a6cf0052456644b80fa06d4f.ssl.cf2.rackcdn.com/images/characters/large/800/Glenn-Quagmire.Family-Guy.webp"
-                        a={["Seth Macfarlane", "Mila Kunis"]}
+                        q={gameState.question}
+                        a={gameState.answers}
+                        timer={timer}
                     />
 
                     <VoteList
-                        items={[
-                            {
-                                player: "Playeromg",
-                                voted: 1
-                            },
-                            {
-                                player: "EpicGamer33",
-                            }
-                        ]}
+                        items={[]}
                         color={red[300]}
                         reverse
                     />

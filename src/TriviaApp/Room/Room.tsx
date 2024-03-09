@@ -16,7 +16,7 @@ import Chat from "./Chat";
 import TriviaGame, { TriviaGameHandle } from "../Trivia/TriviaGame";
 
 // NOTE Change this for debug on/off
-const DebugMode: boolean = true;
+const DebugMode: boolean = false;
 
 const WebSocketServerAddress = "ws://localhost:9100/ws";
 
