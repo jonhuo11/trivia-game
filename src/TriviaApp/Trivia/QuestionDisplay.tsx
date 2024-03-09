@@ -2,6 +2,7 @@ import {
 	Box,
 	Card,
 	CardContent,
+	CardMedia,
 	List,
 	ListItem,
 	ListItemButton,
@@ -11,6 +12,7 @@ import {
 
 interface QuestionDisplayProps {
 	q: string;
+    img?: string;
 	a: string[];
 }
 
@@ -18,7 +20,7 @@ const AlphabetUpper: string[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 /*
 Kahoot style question display main question in the center box, answers below
 */
-const QuestionDisplay = ({ q, a }: QuestionDisplayProps) => {
+const QuestionDisplay = ({ q, img, a }: QuestionDisplayProps) => {
 	return (
 		<Box
 			sx={{
@@ -29,6 +31,12 @@ const QuestionDisplay = ({ q, a }: QuestionDisplayProps) => {
 			}}>
 			<Box>
 				<Card>
+                    {img && <CardMedia 
+                        component="img"
+                        image={img}
+                        alt="Question image"
+                        style={{maxHeight: "40vh"}}
+                    />}
 					<CardContent>
 						<Typography textAlign="center">{q}</Typography>
 					</CardContent>

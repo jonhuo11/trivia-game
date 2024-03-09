@@ -12,11 +12,16 @@ import { TriviaGameActionMessage, TriviaGameUpdate } from "../Messages";
 import { ObjectReplace } from "../../Util";
 import QuestionDisplay from "./QuestionDisplay";
 import VoteList from "./VoteList";
+import { blue, red } from "@mui/material/colors";
 
 enum TriviaState {
 	INLIMBO = 0,
 	INROUND = 1,
 	INLOBBY = 2,
+}
+
+type Player = {
+    name: string
 }
 
 interface TriviaGameState {
@@ -151,26 +156,38 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 						</Button>
 					</Box>
 				)}
-				
-                <QuestionDisplay
-                    q="Which voice actor does the voice for Quagmire?"
-                    a={["Seth Macfarlane", "Mila Kunis"]}
-                />
-
 
                 <Box
-                    alignSelf="center"
+                    display="flex"
+                    flexDirection="row"
+                    justifyContent="space-between"
                 >
-                    <VoteList items={[
-                        {
-                            player: "joe",
-                            voted: false
-                        },
-                        {
-                            player: "bob",
-                            voted: true
-                        }
-                    ]}/>
+                    <VoteList 
+                        items={[{
+                            player:"Joe",
+                            voted: 5
+                        }]}
+                        color={blue[300]}
+                    />
+
+                    <QuestionDisplay
+                        q="Which voice actor does the voice for Quagmire?"
+                        a={["Seth Macfarlane", "Mila Kunis"]}
+                    />
+
+                    <VoteList
+                        items={[
+                            {
+                                player: "Playeromg",
+                                voted: 1
+                            },
+                            {
+                                player: "EpicGamer33",
+                            }
+                        ]}
+                        color={red[300]}
+                        reverse
+                    />
                 </Box>
         
 			</Box>
