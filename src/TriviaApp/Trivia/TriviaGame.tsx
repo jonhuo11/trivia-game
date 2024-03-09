@@ -13,7 +13,7 @@ import TeamsList from "./TeamsList";
 import { Box, Button, Typography } from "@mui/material";
 import { TriviaGameActionMessage, TriviaGameUpdate, TriviaGameUpdateType } from "../Messages";
 import QuestionDisplay from "./QuestionDisplay";
-import VoteList from "./VoteList";
+import VoteList, { VoteListItem } from "./VoteList";
 import { blue, red } from "@mui/material/colors";
 
 enum TriviaState {
@@ -97,7 +97,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 		useEffect(() => {
             const ti = window.setInterval(() => {
                 setTimer(p => {
-                    console.log("Trivia timer", p)
+                    //console.log("Trivia timer", p)
                     return Math.max(0, p - 1)
                 })
             }, 950) // set a little faster to compesnate for lag?
@@ -240,7 +240,14 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                     alignItems="center"
                 >
                     <VoteList 
-                        items={[]}
+                        items={gameState.blueTeamIds.map(v => {
+                            const pl = gameState.players[v]
+                            const vli:VoteListItem = {
+                                player: pl.id,
+                                voted: pl.voted
+                            }
+                            return vli
+                        })}
                         color={blue[300]}
                     />
 
@@ -251,7 +258,14 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                     />
 
                     <VoteList
-                        items={[]}
+                        items={gameState.redTeamIds.map(v => {
+                            const pl = gameState.players[v]
+                            const vli:VoteListItem = {
+                                player: pl.id,
+                                voted: pl.voted
+                            }
+                            return vli
+                        })}
                         color={red[300]}
                         reverse
                     />

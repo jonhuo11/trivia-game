@@ -4,7 +4,7 @@ import { memo } from "react"
 import { numToAlpha } from "../../Util"
 import { green } from "@mui/material/colors"
 
-interface VoteListItem {
+export interface VoteListItem {
     player: string,
     icon?: string,
     voted?: number
@@ -55,7 +55,7 @@ const VoteList = memo(({items, reverse=false, color}: VoteListProps) => {
         alignItems="flex-start"
     >{
         items.length > 0 ? 
-        items.map((v:VoteListItem) => <VoteListElement v={v} reverse={reverse} color={color}/>) :
+        items.map((v:VoteListItem, i:number) => <VoteListElement key={i} v={v} reverse={reverse} color={color}/>) :
             <VoteListElement v={{player:"No players"}} showAvatar={false}/>
     }</Box>
 })
