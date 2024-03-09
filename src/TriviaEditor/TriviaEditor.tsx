@@ -8,7 +8,7 @@ This is a separate page from the game
 */
 
 import { Box, Button, Container, CssBaseline, TextField, Typography } from "@mui/material"
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { TriviaFileContentType, TriviaQuestionType } from "./TriviaFileContentTypes"
 import TriviaFileContentParser from "./TriviaFileContentTypes"
 import TriviaQuestionAnswerEditor from "./TriviaQuestionAnswerEditor"
@@ -43,7 +43,7 @@ const TriviaEditor = () => {
     const [showRawFileData, setShowRawFileData] = useState<boolean>(false)
 
 
-    const updateTriviaQuestion = (qi:number, q:TriviaQuestionType) => {
+    const updateTriviaQuestion = useCallback((qi:number, q:TriviaQuestionType) => {
         if (triviaData && triviaData.parsedData.questions.length > qi) {
             setTriviaData(p => {
                 const qclone = [...p!.parsedData.questions]
@@ -57,7 +57,7 @@ const TriviaEditor = () => {
                 return clone
             })
         }
-    }
+    }, [triviaData, setTriviaData])
     
 
     const handleTriviaFileUpload = async () => {

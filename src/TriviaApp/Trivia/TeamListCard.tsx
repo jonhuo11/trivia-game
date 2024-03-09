@@ -1,8 +1,9 @@
 import { Box, Button, Card, CardActions, CardContent, Typography } from "@mui/material"
+import { Player } from "./TriviaGame"
 
 interface TeamListCardProps {
     teamTitle: string,
-    team: string[],
+    team: Player[],
     handleJoin?: ()=>void
 }
 
@@ -16,7 +17,7 @@ const TeamListCard = ({teamTitle, team, handleJoin}: TeamListCardProps) => {
         <CardContent>
             <Typography>{teamTitle}</Typography>
             <Box>{team.map((v, i) => {
-                return <Typography key={i}>{v}</Typography>
+                return <Typography key={i}>{v.name}</Typography>
             })}</Box>
         </CardContent>
         <CardActions>

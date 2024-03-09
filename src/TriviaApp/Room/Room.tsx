@@ -23,7 +23,7 @@ const WebSocketServerAddress = "ws://localhost:9100/ws";
 interface RoomState {
 	connected: boolean;
 	code: string;
-	players: string[];
+	playerIds: string[];
 	chat: string[];
 	isOwner: boolean;
 }
@@ -41,7 +41,7 @@ interface RoomAction {
 const initialRoomState: RoomState = {
 	connected: false,
 	code: "",
-	players: [],
+	playerIds: [],
 	chat: [],
 	isOwner: false,
 };
@@ -262,8 +262,8 @@ const Room = () => {
 								Is owner: {`${roomState.isOwner}`}
 							</Typography>
 							<Typography>Players:</Typography>
-							{roomState.players &&
-								roomState.players.map((v, i) => {
+							{roomState.playerIds &&
+								roomState.playerIds.map((v, i) => {
 									return <Typography key={i}>{v}</Typography>;
 								})}
 						</Box>

@@ -2,6 +2,7 @@
 import { Add, Delete } from "@mui/icons-material"
 import { Box, Button, TextField } from "@mui/material"
 import { TriviaAnswerType, TriviaQuestionType } from "./TriviaFileContentTypes"
+import { memo } from "react"
 //import { forwardRef, useImperativeHandle } from "react"
 
 interface TriviaQuestionAnswerEditorProps {
@@ -14,7 +15,7 @@ interface TriviaQuestionAnswerEditorProps {
 
 
 
-const TriviaQuestionAnswerEditor = (
+const TriviaQuestionAnswerEditor = memo((
     {
         index,
         q,
@@ -145,6 +146,6 @@ const TriviaQuestionAnswerEditor = (
             >Delete</Button>
         </Box>
     </Box>
-}
+})
 
 export default TriviaQuestionAnswerEditor

@@ -20,8 +20,10 @@ enum TriviaState {
 	INLOBBY = 2,
 }
 
-type Player = {
+export type Player = {
+    id: string
     name: string
+    voted?: number // which option the player voted for
 }
 
 interface TriviaGameState {
@@ -32,10 +34,10 @@ interface TriviaGameState {
 	round: number;
 
 	// blue team
-	blueTeam: string[];
+	blueTeam: Player[];
 
 	// red team
-	redTeam: string[];
+	redTeam: Player[];
 }
 
 const initialTriviaGameState: TriviaGameState = {
@@ -161,6 +163,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                     display="flex"
                     flexDirection="row"
                     justifyContent="space-between"
+                    alignItems="center"
                 >
                     <VoteList 
                         items={[{
@@ -172,6 +175,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 
                     <QuestionDisplay
                         q="Which voice actor does the voice for Quagmire?"
+                        img="https://a1cf74336522e87f135f-2f21ace9a6cf0052456644b80fa06d4f.ssl.cf2.rackcdn.com/images/characters/large/800/Glenn-Quagmire.Family-Guy.webp"
                         a={["Seth Macfarlane", "Mila Kunis"]}
                     />
 

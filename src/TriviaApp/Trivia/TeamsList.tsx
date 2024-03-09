@@ -1,9 +1,10 @@
 import { Card, CardContent, Grid, Typography } from "@mui/material"
 import TeamListCard from "./TeamListCard"
+import { Player } from "./TriviaGame"
 
 interface TeamsListProps {
-    blue: string[]
-    red: string[]
+    blue: Player[]
+    red: Player[]
     handleClickBlueTeam?: ()=>void
     handleClickRedTeam?: ()=>void
 }
