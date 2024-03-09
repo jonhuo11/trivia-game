@@ -45,7 +45,8 @@ export enum TriviaGameUpdateType {
     TSUTTeam = 0,
     TSUTGoToRoundFromLimbo = 1,
 	TSUTGoToLimboFromRound = 2,
-    TSUTStartup = 3
+    TSUTStartup = 3,
+    TSUTSync = 4
 }
 
 // incoming update from server, on server side is TriviaStateUpdateMessage
@@ -59,12 +60,21 @@ export interface TriviaGameUpdate {
 	limboTime: number;
     startupTime: number;
     question: string;
-    answers: string[];
+    answers: {
+        a: string
+    }[];
+}
+
+export enum TriviaGameActionType {
+    TGATJoin = 0,
+    TGATGuess = 1
 }
 
 // outgoing, updates related to the trivia game itself
 export interface TriviaGameActionMessage {
+    type: TriviaGameActionType;
 	join?: number; // 0 is blue 1 is red
+    guess?: number; // the player's guess of which answer
 }
 
 // helper for compressing actions

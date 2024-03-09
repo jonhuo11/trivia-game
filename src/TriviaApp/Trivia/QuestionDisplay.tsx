@@ -5,7 +5,6 @@ import {
 	CardContent,
 	CardMedia,
 	List,
-	ListItem,
 	ListItemButton,
 	ListItemText,
 	Typography,
@@ -18,7 +17,7 @@ interface QuestionDisplayProps {
     img?: string;
 	a: string[];
     selected?: number;
-    setSelected?: (n:number)=>void;
+    setSelected?: (answeri:number)=>void;
 }
 
 const AlphabetUpper: string[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -52,12 +51,15 @@ const QuestionDisplay = memo(({ timer, q, img, a, selected, setSelected = ()=>{}
 			</Box>
 			<Box
 				sx={{
-					width: "100%",
-					alignSelf: "flex-start",
+					alignSelf: "center",
 				}}>
 				<List component="nav">
 					{a.map((v, i) => (
-						<ListItemButton key={i} onClick={() => {setSelected(i)}}>
+						<ListItemButton
+                            key={i}
+                            selected={selected === i}
+                            onClick={() => {setSelected(i)}}
+                        >
 							<ListItemText
 								key={i}
 								primary={`${AlphabetUpper[i]}) ${v}`}

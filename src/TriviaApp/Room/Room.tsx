@@ -35,6 +35,7 @@ enum RoomActions {
 
 interface RoomAction {
 	action: RoomActions;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	payload?: any;
 }
 
@@ -49,7 +50,7 @@ const roomStateReducer = (state: RoomState, action: RoomAction): RoomState => {
 	switch (action.action) {
 		case RoomActions.Reset:
 			return initialRoomState;
-		case RoomActions.UpdateRoomState:
+		case RoomActions.UpdateRoomState: {
 			const p = action.payload as RoomUpdateMessage;
 			const newState = {
 				...state,
@@ -58,7 +59,7 @@ const roomStateReducer = (state: RoomState, action: RoomAction): RoomState => {
 			};
 			//console.log(newState)
 			return newState;
-		default:
+        } default:
 			break;
 	}
 	return state;
@@ -108,7 +109,7 @@ const Room = () => {
 					console.log("Other message type");
 			}
 		}
-	}, [roomStateDispatch, gameRef.current]);
+	}, [roomStateDispatch]);
 
 	const disconnect = useCallback(() => {
 		if (ws.current) {
@@ -152,7 +153,7 @@ const Room = () => {
 		socket.onmessage = onServerMessage;
 
 		ws.current = socket;
-	}, [setConnected, disconnect, ws.current]);
+	}, [onServerMessage, disconnect]);
 
 	const wsSendMessage = useCallback((type: PlayerMessageType, content: string) => {
 		if (!ws.current) {
@@ -164,7 +165,7 @@ const Room = () => {
 				content: content,
 			})
 		);
-	}, [ws.current]);
+	}, []);
 
 	const handleJoinRoom = useCallback((code: string) => {
 		const jrm: JoinRoomMessage = {

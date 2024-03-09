@@ -1,20 +1,19 @@
 import {
-    createRef,
-	forwardRef,
+    forwardRef,
 	useCallback,
 	useContext,
 	useEffect,
 	useImperativeHandle,
-	useRef,
 	useState,
 } from "react";
 import { RoomStateContext } from "../Room/Room";
 import TeamsList from "./TeamsList";
 import { Box, Button, Typography } from "@mui/material";
-import { TriviaGameActionMessage, TriviaGameUpdate, TriviaGameUpdateType } from "../Messages";
+import { TriviaGameActionMessage, TriviaGameActionType, TriviaGameUpdate, TriviaGameUpdateType } from "../Messages";
 import QuestionDisplay from "./QuestionDisplay";
 import VoteList, { VoteListItem } from "./VoteList";
 import { blue, red } from "@mui/material/colors";
+import { ObjectReplace } from "../../Util";
 
 enum TriviaState {
 	INLIMBO = 0,
@@ -49,7 +48,7 @@ interface TriviaGameState {
     question: string
 
     // answers
-    answers: string[],
+    answers: {a:string}[],
 
     // time per round
     roundTimeSeconds: number,
@@ -59,6 +58,9 @@ interface TriviaGameState {
 
     // time to startup
     startupTimeSeconds: number
+
+    // selected answer
+    selected: number
 }
 
 const initialTriviaGameState: TriviaGameState = {
@@ -71,7 +73,8 @@ const initialTriviaGameState: TriviaGameState = {
     answers: [],
     roundTimeSeconds: 0,
     limboTimeSeconds: 0,
-    startupTimeSeconds: 0
+    startupTimeSeconds: 0,
+    selected: 0,
 };
 
 interface TriviaGameProps {
@@ -101,7 +104,6 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                     return Math.max(0, p - 1)
                 })
             }, 950) // set a little faster to compesnate for lag?
-
             return () => {
                 window.clearInterval(ti)
             }
@@ -109,10 +111,11 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 
 		const onWebsocketDisconnect = useCallback(() => {
 			setGameState(initialTriviaGameState);
-		}, [setGameState]);
+            setStarting(false)
+		}, [setGameState, setStarting]);
 
 
-	    const onServerTriviaGameUpdate = useCallback((update: TriviaGameUpdate): void => {
+        const onServerTriviaGameUpdate = useCallback((update: TriviaGameUpdate): void => {
             console.log(update)
 
 			// use cstate here to get current state value as setState calls are batched
@@ -124,7 +127,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                 const newState:TriviaGameState = { ...cstate };
 
                 switch(update.type) {
-                    case TriviaGameUpdateType.TSUTTeam:
+                    case TriviaGameUpdateType.TSUTTeam: {
                         // a player changed or joined a team, this only happens while InLobby
                         newState.blueTeamIds = update.blueTeamIds || []
                         newState.redTeamIds = update.redTeamIds || []
@@ -140,7 +143,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                         
                         break
 
-                    case TriviaGameUpdateType.TSUTGoToRoundFromLimbo:
+                    } case TriviaGameUpdateType.TSUTGoToRoundFromLimbo:
                         // load the new question and answers
                         newState.question = update.question
                         newState.answers = update.answers
@@ -166,6 +169,23 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                         setTimer(newState.startupTimeSeconds)
                         setStarting(true)
                         break
+                    
+                    case TriviaGameUpdateType.TSUTSync: {
+                        // sync this newly connected client
+                        console.log("Syncing client")
+                        ObjectReplace(newState, update)
+                        newState.selected = -1
+                        const allPlayers = [...newState.blueTeamIds, ...newState.redTeamIds]
+                        allPlayers.map(v => {
+                            if (!(v in newState.players)) {
+                                console.log("Adding new player")
+                                newState.players[v] = {
+                                    id: v,
+                                }
+                            }
+                        })
+                        break
+                    }
                     default:
                         console.error("Unrecognized game update type")
                         return cstate
@@ -190,15 +210,28 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 					},
 				};
 			},
-			[]
+			[onServerTriviaGameUpdate, onWebsocketDisconnect]
 		);
 
 		const joinTeam = useCallback((color: "blue" | "red") => {
 			const tgam: TriviaGameActionMessage = {
-				join: color === "blue" ? 0 : 1,
-			};
+                type: TriviaGameActionType.TGATJoin,
+                join: color === "blue" ? 0 : 1,
+            };
 			wsSendGameMessage(JSON.stringify(tgam));
 		}, [wsSendGameMessage]);
+
+        const guess = useCallback((answeri:number) => {
+            if (answeri < 0 || answeri >= gameState.answers.length) {
+                const tgam: TriviaGameActionMessage = {
+                    type: TriviaGameActionType.TGATGuess,
+                    guess: answeri
+                }
+                wsSendGameMessage(JSON.stringify(tgam))
+            } else {
+                console.error("Guess index invalid")
+            }
+        }, [gameState.answers.length, wsSendGameMessage])
 
 		const startGame = useCallback(() => {
 			roomStartGame();
@@ -253,8 +286,10 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 
                     <QuestionDisplay
                         q={gameState.question}
-                        a={gameState.answers}
+                        a={gameState.answers.map(v => v.a)}
                         timer={timer}
+                        selected={gameState.selected}
+                        setSelected={guess}
                     />
 
                     <VoteList

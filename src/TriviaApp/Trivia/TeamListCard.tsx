@@ -1,5 +1,4 @@
 import { Box, Button, Card, CardActions, CardContent, Typography } from "@mui/material"
-import { TriviaPlayer } from "./TriviaGame"
 import { memo } from "react"
 
 interface TeamListCardProps {
