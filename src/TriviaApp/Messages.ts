@@ -41,12 +41,24 @@ export interface RoomUpdateMessage {
 	created?: boolean;
 }
 
+// check serverside in messages.go  TriviaStateUpdateType
 export enum TriviaGameUpdateType {
     TSUTTeam = 0,
     TSUTGoToRoundFromLimbo = 1,
 	TSUTGoToLimboFromRound = 2,
     TSUTStartup = 3,
-    TSUTSync = 4
+    TSUTSync = 4,
+    TSUTPlayerVoted = 5
+}
+
+export enum SpecialVoteType {
+    NoVoteSelected = -1,
+    HiddenVoteSelected = -2 // for enemy team votes which cannot be shown
+}
+
+export interface PlayerVote {
+    id: string,
+    vote: number
 }
 
 // incoming update from server, on server side is TriviaStateUpdateMessage
@@ -63,6 +75,8 @@ export interface TriviaGameUpdate {
     answers: {
         a: string
     }[];
+    votes: PlayerVote[]; // sync all votes, sent to new clients
+    vote: PlayerVote; // a vote delta, sent to connected clients
 }
 
 export enum TriviaGameActionType {

@@ -1,3 +1,4 @@
+// replaces all values of keys which exist in original with values in replacer. Keys in replacer but not in original are not added
 export const ObjectReplace = (original:any, replacer:any) => {
     for (let key in replacer) {
         if (key in original && replacer[key] !== null && replacer[key] !== undefined) {

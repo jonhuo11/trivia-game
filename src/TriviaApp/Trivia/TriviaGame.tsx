@@ -74,7 +74,7 @@ const initialTriviaGameState: TriviaGameState = {
     roundTimeSeconds: 0,
     limboTimeSeconds: 0,
     startupTimeSeconds: 0,
-    selected: 0,
+    selected: -1, // none selected
 };
 
 interface TriviaGameProps {
@@ -143,7 +143,7 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                         
                         break
 
-                    } case TriviaGameUpdateType.TSUTGoToRoundFromLimbo:
+                    } case TriviaGameUpdateType.TSUTGoToRoundFromLimbo:{
                         // load the new question and answers
                         newState.question = update.question
                         newState.answers = update.answers
@@ -157,10 +157,10 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
 
                         break
 
-                    case TriviaGameUpdateType.TSUTGoToLimboFromRound:
+                    } case TriviaGameUpdateType.TSUTGoToLimboFromRound:
 
                         break
-                    case TriviaGameUpdateType.TSUTStartup:
+                    case TriviaGameUpdateType.TSUTStartup: {
                         // round and limbo times will be provided
                         console.log("Starting game...")
                         newState.roundTimeSeconds = update.roundTime
@@ -169,12 +169,12 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                         setTimer(newState.startupTimeSeconds)
                         setStarting(true)
                         break
-                    
-                    case TriviaGameUpdateType.TSUTSync: {
+                    } case TriviaGameUpdateType.TSUTSync: {
                         // sync this newly connected client
                         console.log("Syncing client")
-                        ObjectReplace(newState, update)
+                        ObjectReplace(newState, update) // does not add a few fields
                         newState.selected = -1
+                        // sync players
                         const allPlayers = [...newState.blueTeamIds, ...newState.redTeamIds]
                         allPlayers.map(v => {
                             if (!(v in newState.players)) {
@@ -184,6 +184,17 @@ const TriviaGame = forwardRef<TriviaGameHandle, TriviaGameProps>(
                                 }
                             }
                         })
+                        // sync votes
+                        for (const pvi in update.votes) {
+                            const pv = update.votes[pvi]
+                            if (pv.id in newState.players) {
+                                newState.players[pv.id].voted = pv.vote
+                            }
+                        }
+                        break
+                    }
+                    case TriviaGameUpdateType.TSUTPlayerVoted: {
+                        // sync the one vote
                         break
                     }
                     default:

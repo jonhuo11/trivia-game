@@ -8,7 +8,7 @@ const defaultTheme = createTheme({
     }
 })
 
-function App() {
+function TriviaApp() {
     return (<>
         <ThemeProvider theme={defaultTheme}>
             <Container component="main">
@@ -19,4 +19,4 @@ function App() {
     </>)
 }
 
-export default App
+export default TriviaApp
