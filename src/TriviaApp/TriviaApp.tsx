@@ -1,8 +1,8 @@
-import { Container, CssBaseline, ThemeProvider, createTheme } from '@mui/material'
+import { Box, Container, CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import './App.css'
 import Room from './Room/Room'
 
-const defaultTheme = createTheme({
+export const defaultTheme = createTheme({
     palette: {
         mode: 'dark'
     }
@@ -11,10 +11,10 @@ const defaultTheme = createTheme({
 function TriviaApp() {
     return (<>
         <ThemeProvider theme={defaultTheme}>
-            <Container component="main">
+            <Box component="main" height="100vh">
                 <CssBaseline/>
                 <Room/>
-            </Container>
+            </Box>
         </ThemeProvider>
     </>)
 }
